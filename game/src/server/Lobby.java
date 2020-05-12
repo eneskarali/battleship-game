@@ -9,6 +9,9 @@ package server;
  *
  * @author enes
  */
-public class Server {
+public class Lobby {
+    boolean readyToStart = false;
+    
+    Player players[] = new Player[2];
     
 }
