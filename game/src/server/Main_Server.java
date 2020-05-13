@@ -10,7 +10,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  *
@@ -21,7 +23,10 @@ public class Main_Server {
     private ServerSocket mainServerSocket;
     private Thread mainServerThread;
     private final HashSet<ObjectOutputStream> allClients = new HashSet<>();
+    private final Map<String, Player> players = new HashMap<>();
+    private final Map<Integer, Lobby> activeLobbys = new HashMap<>();
 
+    
     protected void start(int port) throws IOException {
 
         mainServerSocket = new ServerSocket(port);
@@ -30,28 +35,33 @@ public class Main_Server {
         mainServerThread = new Thread(() -> {
             while (!mainServerSocket.isClosed()) {
                 try {
-                    
+
                     Socket clientSocket = mainServerSocket.accept();
-                    
-                    new ListenThread(clientSocket).start();
-                    
+
+                    new ListenAllClients(clientSocket).start();
+
                 } catch (IOException ex) {
-                    System.out.println("Hata - new Thread() : " + ex);
+                    System.out.println("Thread oluşturulamadı : " + ex);
                     break;
                 }
             }
 
         });
-
+        mainServerThread.start();
     }
-class ListenThread extends Thread {
+    
+    protected void createLobby(){
+        
+    }
+
+    class ListenAllClients extends Thread {
 
         // dinleyeceğimiz client'ın soket nesnesi, input ve output stream'leri
         private final Socket clientSocket;
         private ObjectInputStream clientInput;
         private ObjectOutputStream clientOutput;
 
-        private ListenThread(Socket clientSocket) {
+        private ListenAllClients(Socket clientSocket) {
             this.clientSocket = clientSocket;
         }
 
@@ -63,32 +73,39 @@ class ListenThread extends Thread {
                 // input  : client'dan gelen mesajları okumak için
                 // output : server'a bağlı olan client'a mesaj göndermek için
                 clientInput = new ObjectInputStream(clientSocket.getInputStream());
-                clientOutput = new ObjectOutputStream(clientSocket.getOutputStream());
+                clientOutput = new ObjectOutputStream(clientSocket.getOutputStream());  
 
-                // Bütün client'lara yeni katılan client bilgisini gönderir
-                for (ObjectOutputStream out : allClients) {
-                    out.writeObject(this.getName() + " server'a katıldı.");
-                }
-
-                // broadcast için, yeni gelen client'ın output stream'ını listeye ekler
-                allClients.add(clientOutput);
-
-                // client ismini mesaj olarak gönder
-                clientOutput.writeObject("@id-" + this.getName());
-
-                Object mesaj;
+                Object receivedMessage;
+                
                 // client mesaj gönderdiği sürece mesajı al
-                while ((mesaj = clientInput.readObject()) != null) {
-                    // client'in gönderdiği mesajı server ekranına yaz
-                    System.out.println(this.getName() + " : " + mesaj);
+                while ((receivedMessage = clientInput.readObject()) != null) {
+                    
+                    //gelen mesajı çıktı olarak yaz
+                    System.out.println(this.getName() + " : " + receivedMessage);
+                    
+                    // client'in gönderdiği mesajı komut ve içerik olarak parçala
+                    String message[] = receivedMessage.toString().split(":");
+                    String command = message[0];
+                    String content = message[1];
+                    
+                    //eğer save_user komutu gelmişse gelen username ile birlikte kullanıcı oluştur ve kayıt et
+                    if(command.equals("save_user")){
+                        Player p = new Player(0, content);
+                        players.put(p.userName, p);
+                        System.out.println("username:" + p.userName);
+                    }
+                    else if(command.equals("create_lobby")){
+                        
+                    }
+                    
 
                     // bütün client'lara gelen bu mesajı gönder
                     for (ObjectOutputStream out : allClients) {
-                        out.writeObject(this.getName() + ": " + mesaj);
+                        out.writeObject(this.getName() + ": " + receivedMessage);
                     }
 
                     // "son" mesajı iletişimi sonlandırır
-                    if (mesaj.equals("son")) {
+                    if (receivedMessage.equals("son")) {
                         break;
                     }
                 }
