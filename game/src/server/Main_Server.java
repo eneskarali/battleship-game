@@ -90,7 +90,8 @@ public class Main_Server {
                     
                     //eğer save_user komutu gelmişse gelen username ile birlikte kullanıcı oluştur ve kayıt et
                     if(command.equals("save_user")){
-                        Player p = new Player(0, content);
+                        Player p = new Player("", content);
+                        p.generatePlayerId();
                         players.put(p.userName, p);
                         System.out.println("username:" + p.userName);
                     }
