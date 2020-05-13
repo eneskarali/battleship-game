@@ -5,13 +5,26 @@
  */
 package server;
 
+import java.util.UUID;
+
 /**
  *
  * @author enes
  */
 public class Lobby {
     boolean readyToStart = false;
+   
+    String lobbyId;
     
     Player players[] = new Player[2];
     
+        
+    public void generateLobbyId(){
+        String lid = UUID.randomUUID().toString();
+        lid = lid.replaceAll("-","");
+        lid = lid.substring(0,5);
+        this.lobbyId = lid + players[0].id.substring(0,5); 
+    
+    }
+
 }
