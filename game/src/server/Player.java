@@ -34,6 +34,10 @@ public class Player {
    
     }
     
+    public void setGameMatrix(int matrix[][]){
+        this.gameMatrix = matrix; 
+    }
+    
   
         
  }

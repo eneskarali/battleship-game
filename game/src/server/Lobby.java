@@ -27,4 +27,8 @@ public class Lobby {
     
     }
 
+    public void checkPlayerReady(){
+        if (players[0].isReady== true && players[1].isReady == true)
+            this.readyToStart = true;
+    }
 }
