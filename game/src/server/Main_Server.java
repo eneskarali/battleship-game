@@ -24,9 +24,8 @@ public class Main_Server {
     private Thread mainServerThread;
     private final HashSet<ObjectOutputStream> allClients = new HashSet<>();
     private final Map<String, Player> players = new HashMap<>();
-    private final Map<Integer, Lobby> activeLobbys = new HashMap<>();
+    private final Map<String, Lobby> activeLobbys = new HashMap<>();
 
-    
     protected void start(int port) throws IOException {
 
         mainServerSocket = new ServerSocket(port);
@@ -49,9 +48,29 @@ public class Main_Server {
         });
         mainServerThread.start();
     }
-    
-    protected void createLobby(){
-        
+
+    protected void createLobby(Player p) {
+        if (p != null) {
+            Lobby l = new Lobby();
+            l.players[0] = p;
+            l.generateLobbyId();
+            activeLobbys.put(l.lobbyId, l);
+            System.out.println("lobby id: " + l.lobbyId + "  oluşuturdu");
+        } else {
+            System.out.println("Oda oluşturulamadı: aktif kullanıcı bulunamadı!");
+        }
+
+    }
+
+    protected void joinLobby(Player p, String lobbyId) {
+        if (p != null) {
+            Lobby l = activeLobbys.get(lobbyId);
+            System.out.println(l.players.length);
+            l.players[1] = p;
+            System.out.println("player id: " + p.id + " katıldı -> lobby id: "+l.lobbyId);
+        } else {
+            System.out.println("Oda oluşturulamadı: aktif kullanıcı bulunamadı!");
+        }
     }
 
     class ListenAllClients extends Thread {
@@ -73,42 +92,44 @@ public class Main_Server {
                 // input  : client'dan gelen mesajları okumak için
                 // output : server'a bağlı olan client'a mesaj göndermek için
                 clientInput = new ObjectInputStream(clientSocket.getInputStream());
-                clientOutput = new ObjectOutputStream(clientSocket.getOutputStream());  
+                clientOutput = new ObjectOutputStream(clientSocket.getOutputStream());
 
                 Object receivedMessage;
-                
+                Player p = null;
                 // client mesaj gönderdiği sürece mesajı al
                 while ((receivedMessage = clientInput.readObject()) != null) {
-                    
+
                     //gelen mesajı çıktı olarak yaz
                     System.out.println(this.getName() + " : " + receivedMessage);
-                    
+
                     // client'in gönderdiği mesajı komut ve içerik olarak parçala
                     String message[] = receivedMessage.toString().split(":");
                     String command = message[0];
                     String content = message[1];
-                    
+
                     //eğer save_user komutu gelmişse gelen username ile birlikte kullanıcı oluştur ve kayıt et
-                    if(command.equals("save_user")){
-                        Player p = new Player("", content);
+                    if (command.equals("save_user")) {
+                        p = new Player("", content);
                         p.generatePlayerId();
-                        players.put(p.userName, p);
-                        System.out.println("username:" + p.userName);
+                        p.clientInput = clientInput;
+                        p.clientOutput = clientOutput;
+                        players.put(p.id, p);
+                        System.out.println("Connected userId:" + p.id);
+                    }else if (command.equals("create_lobby")) {
+                        createLobby(p);
+                    } else if (command.equals("join_lobby")) {
+                        joinLobby(p, content);
                     }
-                    else if(command.equals("create_lobby")){
-                        
-                    }
-                    
 
                     // bütün client'lara gelen bu mesajı gönder
-                    for (ObjectOutputStream out : allClients) {
-                        out.writeObject(this.getName() + ": " + receivedMessage);
-                    }
+//                    for (ObjectOutputStream out : allClients) {
+//                        out.writeObject(this.getName() + ": " + receivedMessage);
+//                    }
 
                     // "son" mesajı iletişimi sonlandırır
-                    if (receivedMessage.equals("son")) {
-                        break;
-                    }
+//                    if (receivedMessage.equals("son")) {
+//                        break;
+//                    }
                 }
 
             } catch (IOException | ClassNotFoundException ex) {
