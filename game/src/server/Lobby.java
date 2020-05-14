@@ -22,13 +22,15 @@ public class Lobby {
     public void generateLobbyId(){
         String lid = UUID.randomUUID().toString();
         lid = lid.replaceAll("-","");
-        lid = lid.substring(0,5);
-        this.lobbyId = lid + players[0].id.substring(0,5); 
+        int i =(int)(Math.random()*(lid.length()-8));
+        lid = lid.substring(i,i+6);
+        this.lobbyId = lid ; 
     
     }
 
     public void checkPlayerReady(){
-        if (players[0].isReady== true && players[1].isReady == true)
+        if (players[0].isReady == true && players[1].isReady == true)
             this.readyToStart = true;
     }
+
 }
