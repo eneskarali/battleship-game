@@ -6,6 +6,8 @@
 
 package server;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.UUID;
 
 /**
@@ -17,6 +19,9 @@ public class Player {
     String id;
     String userName;
     boolean isReady = false;
+    
+    ObjectInputStream clientInput;    
+    ObjectOutputStream clientOutput;
     
     int gameMatrix[][] = new int[10][10];
 
