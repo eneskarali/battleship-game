@@ -34,15 +34,7 @@ public class Player {
    
     }
     
-<<<<<<< Updated upstream
     public void setGameMatrix(int matrix[][]){
         this.gameMatrix = matrix; 
     }
-    
-  
-        
-=======
-
-            
->>>>>>> Stashed changes
  }
