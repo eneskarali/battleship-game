@@ -16,6 +16,7 @@ public class lobby_page extends javax.swing.JFrame {
      */
     public lobby_page() {
         initComponents();
+        this.setLocationRelativeTo(null);
         lbl_lobbyid.setVisible(false);
         lbl_player1.setVisible(false);
         lbl_player2.setVisible(false);
@@ -37,10 +38,13 @@ public class lobby_page extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        lbl_lobbyid.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lbl_lobbyid.setText("lobby_id");
 
+        lbl_player2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lbl_player2.setText("Player2");
 
+        lbl_player1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lbl_player1.setText("Player1");
 
         btn_ready.setText("READY...");

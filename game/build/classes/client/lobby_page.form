@@ -65,16 +65,19 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="lbl_lobbyid">
       <Properties>
+        <Property name="horizontalAlignment" type="int" value="0"/>
         <Property name="text" type="java.lang.String" value="lobby_id"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="lbl_player2">
       <Properties>
+        <Property name="horizontalAlignment" type="int" value="0"/>
         <Property name="text" type="java.lang.String" value="Player2"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="lbl_player1">
       <Properties>
+        <Property name="horizontalAlignment" type="int" value="0"/>
         <Property name="text" type="java.lang.String" value="Player1"/>
       </Properties>
     </Component>
