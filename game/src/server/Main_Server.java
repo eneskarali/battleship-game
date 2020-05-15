@@ -49,6 +49,14 @@ public class Main_Server {
         mainServerThread.start();
     }
 
+    protected Player createPlayer(String userName) {
+        Player p = new Player("", userName);
+        p.generatePlayerId();
+        players.put(p.id, p);
+        System.out.println("Connected userId:" + p.id);
+        return p;
+    }
+
     protected void createLobby(Player p) {
         if (p != null) {
             Lobby l = new Lobby();
@@ -73,12 +81,12 @@ public class Main_Server {
     }
 
     protected void setPlayerStatusToReady(String playerId, String lobbyId) {
-        if(playerId != null && lobbyId != null){
+        if (playerId != null && lobbyId != null) {
             Player p = players.get(playerId);
             p.isReady = true;
             Lobby l = activeLobbys.get(lobbyId);
             l.checkPlayerReady();
-            if(l.readyToStart){
+            if (l.readyToStart) {
                 System.out.println("Kullanıcı Hazır!");
             }
         } else {
@@ -122,12 +130,10 @@ public class Main_Server {
 
                     //eğer save_user komutu gelmişse gelen username ile birlikte kullanıcı oluştur ve kayıt et
                     if (command.equals("save_user")) { // save_user:username şeklinde mesaj gönderilmeli
-                        p = new Player("", content);
-                        p.generatePlayerId();
+                        p = createPlayer(content);
                         p.clientInput = clientInput;
                         p.clientOutput = clientOutput;
-                        players.put(p.id, p);
-                        System.out.println("Connected userId:" + p.id);
+                        p.clientOutput.writeObject("user_saved:"+p.id+"/"+p.userName);
                     } else if (command.equals("create_lobby")) { // parametresiz olarak create_lobby: şeklinde gönderilebilir
                         createLobby(p);
                     } else if (command.equals("join_lobby")) {   // join_lobby:lobbyId şeklinde mesaj gönderilmeli

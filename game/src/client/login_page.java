@@ -5,18 +5,28 @@
  */
 package client;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author ZAHID
  */
 public class login_page extends javax.swing.JFrame {
 
+    Client_Server_Manager manager;
+    
     /**
      * Creates new form login_page
+     * @throws java.io.IOException
      */
-    public login_page() {
+    public login_page() throws IOException {
         initComponents();
         this.setLocationRelativeTo(null);
+        
+        manager = new Client_Server_Manager();
+        manager.start("localhost", 44444, this);
     }
 
     /**
@@ -40,6 +50,11 @@ public class login_page extends javax.swing.JFrame {
         jLabel1.setText("Create User:");
 
         btn_login.setText("LOGİN");
+        btn_login.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_loginActionPerformed(evt);
+            }
+        });
 
         txt_userName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -87,6 +102,19 @@ public class login_page extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txt_userNameActionPerformed
 
+    private void btn_loginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_loginActionPerformed
+        try {
+            // TODO add your handling code here:
+            String message = txt_userName.getText();
+            if(!message.isEmpty()){
+                manager.sendMessage("save_user:"+message);    
+            }
+            
+        } catch (IOException ex) {
+            Logger.getLogger(login_page.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btn_loginActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -117,7 +145,11 @@ public class login_page extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new login_page().setVisible(true);
+                try {
+                    new login_page().setVisible(true);
+                } catch (IOException ex) {
+                    Logger.getLogger(login_page.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }

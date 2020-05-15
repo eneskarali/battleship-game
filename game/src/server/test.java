@@ -28,20 +28,20 @@ public class test {
 
         Main_Server m = new Main_Server();
         m.start(44444);
-
-        Socket client = new Socket("localhost", 44444);
-        clientOutput = new ObjectOutputStream(client.getOutputStream());
-        clientInput = new ObjectInputStream(client.getInputStream());
-
-        clientOutput.writeObject("save_user:deli");
-        clientOutput.writeObject("create_lobby:as");
-        Scanner sc = new Scanner(System.in); //System.in is a standard input stream  
-        System.out.print("Enter a string: ");
-        String lobbyId = sc.nextLine();              //reads string  
-        clientOutput.writeObject("join_lobby:"+lobbyId);
-         System.out.print("Enter a string: ");
-        String playerId = sc.nextLine();   
-        clientOutput.writeObject("im_ready:"+playerId+"/"+lobbyId);
+//
+//        Socket client = new Socket("localhost", 44444);
+//        clientOutput = new ObjectOutputStream(client.getOutputStream());
+//        clientInput = new ObjectInputStream(client.getInputStream());
+//
+//        clientOutput.writeObject("save_user:deli");
+//        clientOutput.writeObject("create_lobby:as");
+//        Scanner sc = new Scanner(System.in); //System.in is a standard input stream  
+//        System.out.print("Enter a string: ");
+//        String lobbyId = sc.nextLine();              //reads string  
+//        clientOutput.writeObject("join_lobby:"+lobbyId);
+//         System.out.print("Enter a string: ");
+//        String playerId = sc.nextLine();   
+//        clientOutput.writeObject("im_ready:"+playerId+"/"+lobbyId);
     }
 
     class ListenThread extends Thread {
