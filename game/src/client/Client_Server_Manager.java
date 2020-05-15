@@ -68,10 +68,18 @@ public class Client_Server_Manager {
                         lobbyOperations_page opPage = new lobbyOperations_page(clientOutput);
                         frame.setVisible(false);
                         opPage.setVisible(true);
-                        String params[] = content.split("/");
+                        String params[] = content.split("/");  // [0] userid, [1] username
                         opPage.setHeader("username: "+params[1] + " / " + "id: "+params[0]);
+                        frame = opPage;
                     } else if (command.equals("lobby_created")) {
-                        
+                        lobby_page lobby = new lobby_page();
+                        lobby.setVisible(true);
+                        frame.setVisible(false);
+                        frame = lobby;
+                        String params[] = content.split("/");  // [0] lobby id, [1] player1 name | player 2 henüz katılmadı
+                        lobby.setLobbyId(params[0]);
+                        lobby.setPlayer1Name(params[1]);   // player1 odayı oluşturan, player2 odaya katılınca set edilecek
+                        lobby.setPlayer2Name("");      // katılmadığından dolayı boş set ediliyor.
                     }
                     
                     // "son" mesajı iletişimi sonlandırır

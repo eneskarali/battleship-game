@@ -17,9 +17,6 @@ public class lobby_page extends javax.swing.JFrame {
     public lobby_page() {
         initComponents();
         this.setLocationRelativeTo(null);
-        lbl_lobbyid.setVisible(false);
-        lbl_player1.setVisible(false);
-        lbl_player2.setVisible(false);
     }
 
     /**
@@ -35,52 +32,58 @@ public class lobby_page extends javax.swing.JFrame {
         lbl_player2 = new javax.swing.JLabel();
         lbl_player1 = new javax.swing.JLabel();
         btn_ready = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        lbl_lobbyid.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lbl_lobbyid.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        lbl_lobbyid.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         lbl_lobbyid.setText("lobby_id");
 
-        lbl_player2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lbl_player2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         lbl_player2.setText("Player2");
 
-        lbl_player1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lbl_player1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         lbl_player1.setText("Player1");
 
-        btn_ready.setText("READY...");
+        btn_ready.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        btn_ready.setText("READY");
+
+        jLabel1.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        jLabel1.setText("In Lobby:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(54, 54, 54)
-                .addComponent(lbl_player1, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 74, Short.MAX_VALUE)
-                .addComponent(lbl_player2, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(59, 59, 59))
-            .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(135, 135, 135)
-                        .addComponent(lbl_lobbyid, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(24, 24, 24)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lbl_player2, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1)
+                            .addComponent(lbl_player1, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lbl_lobbyid, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(127, 127, 127)
+                        .addGap(137, 137, 137)
                         .addComponent(btn_ready, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(17, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(36, 36, 36)
+                .addContainerGap()
                 .addComponent(lbl_lobbyid, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lbl_player1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lbl_player2, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(50, 50, 50)
+                .addComponent(jLabel1)
+                .addGap(5, 5, 5)
+                .addComponent(lbl_player1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lbl_player2)
+                .addGap(43, 43, 43)
                 .addComponent(btn_ready, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(67, Short.MAX_VALUE))
+                .addContainerGap(86, Short.MAX_VALUE))
         );
 
         pack();
@@ -121,9 +124,21 @@ public class lobby_page extends javax.swing.JFrame {
             }
         });
     }
+    public void setLobbyId(String text){
+        lbl_lobbyid.setText("Lobby ID: "+text);
+    }
+    
+    public void setPlayer1Name(String name){
+        lbl_player1.setText(name);
+    }
+    
+    public void setPlayer2Name(String name){
+        lbl_player2.setText(name);
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_ready;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel lbl_lobbyid;
     private javax.swing.JLabel lbl_player1;
     private javax.swing.JLabel lbl_player2;
