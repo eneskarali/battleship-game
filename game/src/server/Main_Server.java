@@ -93,6 +93,10 @@ public class Main_Server {
             System.out.println("Hata: hazır konumuna getirilecek kullanıcı veya oda bulunamadı!");
         }
     }
+    
+    protected void sendMessageToClient(Player p, String message) throws IOException{
+        p.clientOutput.writeObject(message);
+    }
 
     class ListenAllClients extends Thread {
 
@@ -133,9 +137,10 @@ public class Main_Server {
                         p = createPlayer(content);
                         p.clientInput = clientInput;
                         p.clientOutput = clientOutput;
-                        p.clientOutput.writeObject("user_saved:"+p.id+"/"+p.userName);
+                        sendMessageToClient(p, "user_saved:"+p.id+"/"+p.userName);  // kullanıcı kayıt edildi bilgisini client a gönder
                     } else if (command.equals("create_lobby")) { // parametresiz olarak create_lobby: şeklinde gönderilebilir
                         createLobby(p);
+                        sendMessageToClient(p, "lobby_created");
                     } else if (command.equals("join_lobby")) {   // join_lobby:lobbyId şeklinde mesaj gönderilmeli
                         joinLobby(p, content);
                     } else if (command.equals("im_ready")) {     // im_ready:userId/lobbyId şeklinde mesaj gönderilmeli

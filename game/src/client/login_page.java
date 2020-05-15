@@ -143,13 +143,11 @@ public class login_page extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    new login_page().setVisible(true);
-                } catch (IOException ex) {
-                    Logger.getLogger(login_page.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        java.awt.EventQueue.invokeLater(() -> {
+            try {
+                new login_page().setVisible(true);
+            } catch (IOException ex) {
+                Logger.getLogger(login_page.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }
