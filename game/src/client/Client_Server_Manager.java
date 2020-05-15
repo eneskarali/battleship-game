@@ -65,9 +65,13 @@ public class Client_Server_Manager {
                     String content = message[1];
                     
                     if (command.equals("user_saved")){
-                        lobbyOperations_page opPage = new lobbyOperations_page();
+                        lobbyOperations_page opPage = new lobbyOperations_page(clientOutput);
                         frame.setVisible(false);
                         opPage.setVisible(true);
+                        String params[] = content.split("/");
+                        opPage.setHeader("username: "+params[1] + " / " + "id: "+params[0]);
+                    } else if (command.equals("lobby_created")) {
+                        
                     }
                     
                     // "son" mesajı iletişimi sonlandırır
