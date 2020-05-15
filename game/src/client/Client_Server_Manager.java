@@ -16,18 +16,19 @@ import javax.swing.JFrame;
  * @author enes
  */
 public class Client_Server_Manager {
+
     private Socket clientSocket;
     private static ObjectInputStream clientInput;
     private static ObjectOutputStream clientOutput;
     private Thread clientThread;
     private JFrame frame;
-    
-    protected void start(String host, int port,JFrame activeFrame) throws IOException {
+
+    protected void start(String host, int port, JFrame activeFrame) throws IOException {
         // client soketi oluşturma (ip + port numarası)
         clientSocket = new Socket(host, port);
-        
+
         //şuan açık olan ekranı değişiklik yapabilmek için getir.
-        frame= activeFrame;
+        frame = activeFrame;
 
         // input  : client'a gelen mesajları okumak için
         // output : client'dan bağlı olduğu server'a mesaj göndermek için
@@ -37,17 +38,15 @@ public class Client_Server_Manager {
         // server'ı sürekli dinlemek için Thread oluştur
         clientThread = new ListenThread();
         clientThread.start();
-        
+
     }
-    
+
     protected void sendMessage(String message) throws IOException {
-        // gelen mesajı server'a gönder
         clientOutput.writeObject(message);
     }
-    
+
     class ListenThread extends Thread {
 
-        // server'dan gelen mesajları dinle
         @Override
         public void run() {
             try {
@@ -63,13 +62,13 @@ public class Client_Server_Manager {
                     String message[] = receivedMessage.toString().split(":");
                     String command = message[0];
                     String content = message[1];
-                    
-                    if (command.equals("user_saved")){
+
+                    if (command.equals("user_saved")) {
                         lobbyOperations_page opPage = new lobbyOperations_page(clientOutput);
                         frame.setVisible(false);
                         opPage.setVisible(true);
                         String params[] = content.split("/");  // [0] userid, [1] username
-                        opPage.setHeader("username: "+params[1] + " / " + "id: "+params[0]);
+                        opPage.setHeader("username: " + params[1] + " / " + "id: " + params[0]);
                         frame = opPage;
                     } else if (command.equals("lobby_created")) {
                         lobby_page lobby = new lobby_page();
@@ -80,8 +79,20 @@ public class Client_Server_Manager {
                         lobby.setLobbyId(params[0]);
                         lobby.setPlayer1Name(params[1]);   // player1 odayı oluşturan, player2 odaya katılınca set edilecek
                         lobby.setPlayer2Name("");      // katılmadığından dolayı boş set ediliyor.
+                    } else if (command.equals("joined_to_lobby")) {
+                        lobby_page lobby = new lobby_page();
+                        lobby.setVisible(true);
+                        frame.setVisible(false);
+                        frame = lobby;
+                        String params[] = content.split("/");  // [0] lobbyID, [1] player1, [2] player2
+                        lobby.setLobbyId(params[0]);
+                        lobby.setPlayer1Name(params[1]);   
+                        lobby.setPlayer2Name(params[2]);
+                    } else if (command.equals("someone_joined")){
+                        lobby_page p = (lobby_page)frame;
+                        p.setPlayer2Name(content);
                     }
-                    
+
                     // "son" mesajı iletişimi sonlandırır
                     if (receivedMessage.equals("son")) {
                         break;
@@ -92,5 +103,5 @@ public class Client_Server_Manager {
             }
         }
     }
-    
+
 }

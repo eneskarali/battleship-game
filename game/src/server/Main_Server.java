@@ -71,14 +71,16 @@ public class Main_Server {
         return null;
     }
 
-    protected void joinLobby(Player p, String lobbyId) {
+    protected Lobby joinLobby(Player p, String lobbyId) {
         if (p != null && lobbyId != null) {
             Lobby l = activeLobbys.get(lobbyId);
             l.players[1] = p;
             System.out.println("player id: " + p.id + " katıldı -> lobby id: " + l.lobbyId);
+            return l;
         } else {
             System.out.println("Oda oluşturulamadı: aktif kullanıcı veya lobi bulunamadı!");
         }
+        return null;
     }
 
     protected void setPlayerStatusToReady(String playerId, String lobbyId) {
@@ -140,11 +142,14 @@ public class Main_Server {
                         p.clientOutput = clientOutput;
                         sendMessageToClient(p, "user_saved:" + p.id + "/" + p.userName);  // kullanıcı kayıt edildi bilgisini client a gönder
                     } else if (command.equals("create_lobby")) {                    // parametresiz olarak create_lobby: şeklinde gönderilebilir
-                        Lobby l = null;
+                        Lobby l;
                         l = createLobby(p);
                         sendMessageToClient(p, "lobby_created:" + l.lobbyId + "/" + p.userName); // lobby oluşturuldu bilgisi client a gönderilir
                     } else if (command.equals("join_lobby")) {                      // join_lobby:lobbyId şeklinde mesaj gönderilmeli
-                        joinLobby(p, content);
+                        Lobby l;
+                        l = joinLobby(p, content);
+                        sendMessageToClient(p, "joined_to_lobby:"+l.lobbyId+"/"+l.players[0].userName+"/"+l.players[1].userName); //lobiye katılma bilgisi client a gönderilir
+                        sendMessageToClient(l.players[0], "someone_joined:"+l.players[1].userName);
                     } else if (command.equals("im_ready")) {                        // im_ready:userId/lobbyId şeklinde mesaj gönderilmeli
                         String params[] = content.split("/");
                         String userId = params[0];                                  // get userId

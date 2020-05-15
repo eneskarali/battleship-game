@@ -56,6 +56,11 @@ public class lobbyOperations_page extends javax.swing.JFrame {
 
         btn_joinlobby.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         btn_joinlobby.setText("Join Lobby");
+        btn_joinlobby.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_joinlobbyActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText("Lobby ID:");
 
@@ -111,6 +116,16 @@ public class lobbyOperations_page extends javax.swing.JFrame {
             Logger.getLogger(lobbyOperations_page.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btn_lobbycreateActionPerformed
+
+    private void btn_joinlobbyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_joinlobbyActionPerformed
+        // TODO add your handling code here:
+        try {
+            // TODO add your handling code here:
+                clientOutput.writeObject("join_lobby:"+txt_lobbyId.getText()); // server a bir lobiye katılma isteği gönder   
+            } catch (IOException ex) {
+            Logger.getLogger(lobbyOperations_page.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btn_joinlobbyActionPerformed
 
     /**
      * @param args the command line arguments
