@@ -48,6 +48,16 @@ public class Main_Server {
         });
         mainServerThread.start();
     }
+    
+    protected void stop() throws IOException {
+        // bütün streamleri ve soketleri kapat
+        if (mainServerSocket != null) {
+            mainServerSocket.close();
+        }
+        if (mainServerThread != null) {
+            mainServerThread.interrupt();
+        }
+    }
 
     protected Player createPlayer(String userName) {
         Player p = new Player("", userName);
