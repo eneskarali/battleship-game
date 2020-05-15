@@ -5,17 +5,27 @@
  */
 package client;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author ZAHID
  */
 public class lobbyOperations_page extends javax.swing.JFrame {
 
+    ObjectOutputStream clientOutput;
+
     /**
      * Creates new form roomOperations_page
+     * @param out
      */
-    public lobbyOperations_page() {
+    public lobbyOperations_page(ObjectOutputStream out) {
         initComponents();
+        clientOutput = out;
+        
         this.setLocationRelativeTo(null);
     }
 
@@ -32,6 +42,7 @@ public class lobbyOperations_page extends javax.swing.JFrame {
         txt_lobbyId = new javax.swing.JTextField();
         btn_joinlobby = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        txt_header = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -48,37 +59,44 @@ public class lobbyOperations_page extends javax.swing.JFrame {
 
         jLabel1.setText("Lobby ID:");
 
+        txt_header.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        txt_header.setText("Player name / Player id");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(54, 54, 54)
+                .addGap(43, 43, 43)
+                .addComponent(txt_header)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(160, 160, 160)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addComponent(btn_lobbycreate, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btn_joinlobby, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
                         .addGap(12, 12, 12)
                         .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txt_lobbyId, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(107, 107, 107))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btn_joinlobby, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btn_lobbycreate, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGap(212, 212, 212)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(47, 47, 47)
+                .addGap(25, 25, 25)
+                .addComponent(txt_header)
+                .addGap(43, 43, 43)
                 .addComponent(btn_lobbycreate, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(49, 49, 49)
+                .addGap(87, 87, 87)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txt_lobbyId, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btn_joinlobby, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(38, Short.MAX_VALUE))
+                .addGap(125, 125, 125))
         );
 
         pack();
@@ -86,6 +104,12 @@ public class lobbyOperations_page extends javax.swing.JFrame {
 
     private void btn_lobbycreateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_lobbycreateActionPerformed
         // TODO add your handling code here:
+         try {
+            // TODO add your handling code here:
+                clientOutput.writeObject("create_lobby:1"); // server a bir lobi oluşturma isteği gönder   
+            } catch (IOException ex) {
+            Logger.getLogger(lobbyOperations_page.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_btn_lobbycreateActionPerformed
 
     /**
@@ -117,17 +141,20 @@ public class lobbyOperations_page extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new lobbyOperations_page().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new lobbyOperations_page(null).setVisible(true);
         });
+    }
+
+    public void setHeader(String text) {
+        txt_header.setText(text);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_joinlobby;
     private javax.swing.JButton btn_lobbycreate;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel txt_header;
     private javax.swing.JTextField txt_lobbyId;
     // End of variables declaration//GEN-END:variables
 }
