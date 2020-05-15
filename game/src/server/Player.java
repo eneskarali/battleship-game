@@ -60,6 +60,14 @@ public class Player {
         }
 
     }
-    
+    public void checkAndUptadeMatrix(int shot[]){
+        int x = shot[0];
+        int y = shot[1];
+        
+        if (this.gameMatrix[x][y]== 1)
+            this.gameMatrix[x][y]=2;
+        else if (this.gameMatrix[x][y]==0)
+            this.gameMatrix[x][y]= -1;
+    }
     
 }

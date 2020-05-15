@@ -24,4 +24,22 @@ public class Game {
     public void setGameId(String id){
         this.gameId = id;
     } 
+    
+    public void gameOver(){
+        int count1=0;
+        int count2=0;
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                if (this.player_1.gameMatrix[i][j] == 2) 
+                    count1+=1;     
+                if (this.player_2.gameMatrix[i][j]==2)
+                    count2+=1;
+            }
+        }
+        
+        if (count1 == 20 || count2 == 20) {
+            System.out.println("oyun bitti");
+        }
+    }
+    
 }
