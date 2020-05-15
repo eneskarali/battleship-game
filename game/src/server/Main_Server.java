@@ -83,14 +83,17 @@ public class Main_Server {
         return null;
     }
 
-    protected void setPlayerStatusToReady(String playerId, String lobbyId) {
+    protected void setPlayerStatusToReady(String playerId, String lobbyId) throws IOException {
         if (playerId != null && lobbyId != null) {
             Player p = players.get(playerId);
             p.isReady = true;
             Lobby l = activeLobbys.get(lobbyId);
             l.checkPlayerReady();
+            System.out.println(p.userName +" : kullanıcı hazır!");
+            l.players[0].clientOutput.writeObject("users_status:"+l.players[0].isReady+"/"+l.players[1].isReady); // send player1 to user satatus
+            l.players[1].clientOutput.writeObject("users_status:"+l.players[0].isReady+"/"+l.players[1].isReady); // send player2 to user satatus
             if (l.readyToStart) {
-                System.out.println("Kullanıcı Hazır!");
+                System.out.println("Tüm Kullanıcılar Hazır!");
             }
         } else {
             System.out.println("Hata: hazır konumuna getirilecek kullanıcı veya oda bulunamadı!");
@@ -142,14 +145,22 @@ public class Main_Server {
                         p.clientOutput = clientOutput;
                         sendMessageToClient(p, "user_saved:" + p.id + "/" + p.userName);  // kullanıcı kayıt edildi bilgisini client a gönder
                     } else if (command.equals("create_lobby")) {                    // parametresiz olarak create_lobby: şeklinde gönderilebilir
+                        if (p != null){
                         Lobby l;
                         l = createLobby(p);
-                        sendMessageToClient(p, "lobby_created:" + l.lobbyId + "/" + p.userName); // lobby oluşturuldu bilgisi client a gönderilir
+                        sendMessageToClient(p, "lobby_created:" + l.lobbyId + "/" + p.userName + "/" + p.id); // lobby oluşturuldu bilgisi client a gönderilir
+                        } else {
+                            System.out.println("Kullanıcı bulunamadı!");
+                        }
                     } else if (command.equals("join_lobby")) {                      // join_lobby:lobbyId şeklinde mesaj gönderilmeli
+                        if ( p != null){
                         Lobby l;
                         l = joinLobby(p, content);
-                        sendMessageToClient(p, "joined_to_lobby:"+l.lobbyId+"/"+l.players[0].userName+"/"+l.players[1].userName); //lobiye katılma bilgisi client a gönderilir
+                        sendMessageToClient(p, "joined_to_lobby:"+l.lobbyId+"/"+l.players[0].userName+"/"+l.players[1].userName+"/"+p.id); //lobiye katılma bilgisi client a gönderilir
                         sendMessageToClient(l.players[0], "someone_joined:"+l.players[1].userName);
+                        } else {
+                            System.out.println("Kullanıcı bulunamadı!");
+                        }
                     } else if (command.equals("im_ready")) {                        // im_ready:userId/lobbyId şeklinde mesaj gönderilmeli
                         String params[] = content.split("/");
                         String userId = params[0];                                  // get userId

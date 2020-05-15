@@ -5,18 +5,36 @@
  */
 package client;
 
+import java.awt.Color;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author ZAHID
  */
 public class lobby_page extends javax.swing.JFrame {
 
+    ObjectOutputStream clientOutput;
+    String lobbyId;
+    String userId;
+
     /**
      * Creates new form lobby_page
+     *
+     * @param client
+     * @param lId
+     * @param uId
      */
-    public lobby_page() {
+    public lobby_page(ObjectOutputStream client, String lId, String uId) {
         initComponents();
         this.setLocationRelativeTo(null);
+
+        this.clientOutput = client;
+        this.lobbyId = lId;
+        this.userId = uId;
     }
 
     /**
@@ -33,6 +51,8 @@ public class lobby_page extends javax.swing.JFrame {
         lbl_player1 = new javax.swing.JLabel();
         btn_ready = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -48,9 +68,20 @@ public class lobby_page extends javax.swing.JFrame {
 
         btn_ready.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         btn_ready.setText("READY");
+        btn_ready.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_readyActionPerformed(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel1.setText("In Lobby:");
+
+        jLabel2.setForeground(new java.awt.Color(255, 51, 0));
+        jLabel2.setText("->    Not Ready");
+
+        jLabel3.setForeground(new java.awt.Color(255, 51, 0));
+        jLabel3.setText("->    Not Ready");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -61,10 +92,16 @@ public class lobby_page extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(24, 24, 24)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lbl_player2, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel1)
-                            .addComponent(lbl_player1, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lbl_lobbyid, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(lbl_lobbyid, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(lbl_player2, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
+                                    .addComponent(lbl_player1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel2)
+                                    .addComponent(jLabel3)))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(137, 137, 137)
                         .addComponent(btn_ready, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -78,9 +115,13 @@ public class lobby_page extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(jLabel1)
                 .addGap(5, 5, 5)
-                .addComponent(lbl_player1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lbl_player1)
+                    .addComponent(jLabel2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lbl_player2)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lbl_player2)
+                    .addComponent(jLabel3))
                 .addGap(43, 43, 43)
                 .addComponent(btn_ready, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(86, Short.MAX_VALUE))
@@ -88,6 +129,16 @@ public class lobby_page extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btn_readyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_readyActionPerformed
+        // TODO add your handling code here:
+        try {
+            // TODO add your handling code here:
+            clientOutput.writeObject("im_ready:" + userId + "/" + lobbyId);    // server a başlamaya hazır bilgisi gönder gönder   
+        } catch (IOException ex) {
+            Logger.getLogger(lobbyOperations_page.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btn_readyActionPerformed
 
     /**
      * @param args the command line arguments
@@ -117,28 +168,42 @@ public class lobby_page extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new lobby_page().setVisible(true);
-                
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new lobby_page(null, null, null).setVisible(true);
         });
     }
-    public void setLobbyId(String text){
-        lbl_lobbyid.setText("Lobby ID: "+text);
+
+    public void setLobbyId(String text) {
+        lbl_lobbyid.setText("Lobby ID: " + text);
     }
-    
-    public void setPlayer1Name(String name){
+
+    public void setPlayer1Name(String name) {
         lbl_player1.setText(name);
     }
-    
-    public void setPlayer2Name(String name){
+
+    public void setPlayer2Name(String name) {
         lbl_player2.setText(name);
+    }
+
+    public void setPlayer1ToReady(String status) {
+        if (status.equals("true")) {
+            jLabel2.setText("->   Ready");
+            jLabel2.setForeground(new Color(0, 204, 51));
+        }
+    }
+
+    public void setPlayer2ToReady(String status) {
+        if (status.equals("true")) {
+            jLabel3.setText("->   Ready");
+            jLabel3.setForeground(new Color(0, 204, 51));
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_ready;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel lbl_lobbyid;
     private javax.swing.JLabel lbl_player1;
     private javax.swing.JLabel lbl_player2;

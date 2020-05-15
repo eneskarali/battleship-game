@@ -71,26 +71,31 @@ public class Client_Server_Manager {
                         opPage.setHeader("username: " + params[1] + " / " + "id: " + params[0]);
                         frame = opPage;
                     } else if (command.equals("lobby_created")) {
-                        lobby_page lobby = new lobby_page();
+                        String params[] = content.split("/");  // [0] lobby id, [1] player1 name , [2] player1 id| player 2 henüz katılmadı
+                        lobby_page lobby = new lobby_page(clientOutput,  params[0],params[2]);
                         lobby.setVisible(true);
                         frame.setVisible(false);
                         frame = lobby;
-                        String params[] = content.split("/");  // [0] lobby id, [1] player1 name | player 2 henüz katılmadı
                         lobby.setLobbyId(params[0]);
                         lobby.setPlayer1Name(params[1]);   // player1 odayı oluşturan, player2 odaya katılınca set edilecek
                         lobby.setPlayer2Name("");      // katılmadığından dolayı boş set ediliyor.
                     } else if (command.equals("joined_to_lobby")) {
-                        lobby_page lobby = new lobby_page();
+                        String params[] = content.split("/");  // [0] lobbyID, [1] player1, [2] player2, [3] player2 id
+                        lobby_page lobby = new lobby_page(clientOutput, params[0], params[3]);
                         lobby.setVisible(true);
                         frame.setVisible(false);
                         frame = lobby;
-                        String params[] = content.split("/");  // [0] lobbyID, [1] player1, [2] player2
                         lobby.setLobbyId(params[0]);
-                        lobby.setPlayer1Name(params[1]);   
+                        lobby.setPlayer1Name(params[1]);
                         lobby.setPlayer2Name(params[2]);
-                    } else if (command.equals("someone_joined")){
-                        lobby_page p = (lobby_page)frame;
+                    } else if (command.equals("someone_joined")) {
+                        lobby_page p = (lobby_page) frame;
                         p.setPlayer2Name(content);
+                    } else if(command.equals("users_status")){
+                        String params[] = content.split("/");  // [0] player1 status, [1] player2 status
+                        lobby_page p = (lobby_page) frame;
+                        p.setPlayer1ToReady(params[0]);
+                        p.setPlayer2ToReady(params[1]);
                     }
 
                     // "son" mesajı iletişimi sonlandırır
