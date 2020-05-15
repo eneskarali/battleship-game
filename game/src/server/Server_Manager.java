@@ -16,16 +16,15 @@ import java.util.logging.Logger;
 public class Server_Manager extends javax.swing.JFrame {
 
     Main_Server m;
-    
+
     /**
      * Creates new form Server_Manager
+     *
      * @throws java.io.IOException
      */
     public Server_Manager() throws IOException {
         initComponents();
         jButton2.setEnabled(false);
-       
-        
     }
 
     /**
@@ -107,7 +106,7 @@ public class Server_Manager extends javax.swing.JFrame {
         // TODO add your handling code here:
         try {
             m = new Main_Server();
-            m.start(Integer.parseInt(jTextField1.getText()));
+            m.start(Integer.parseInt(jTextField1.getText()));  // server ı başlat
             jButton1.setEnabled(false);
             jButton2.setEnabled(true);
         } catch (IOException ex) {
@@ -118,7 +117,7 @@ public class Server_Manager extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         try {
             // TODO add your handling code here:
-            m.stop();
+            m.stop();  // server o durdur
             jButton1.setEnabled(true);
             jButton2.setEnabled(false);
         } catch (IOException ex) {

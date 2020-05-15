@@ -20,12 +20,13 @@ public class lobbyOperations_page extends javax.swing.JFrame {
 
     /**
      * Creates new form roomOperations_page
+     *
      * @param out
      */
     public lobbyOperations_page(ObjectOutputStream out) {
         initComponents();
         clientOutput = out;
-        
+
         this.setLocationRelativeTo(null);
     }
 
@@ -109,10 +110,10 @@ public class lobbyOperations_page extends javax.swing.JFrame {
 
     private void btn_lobbycreateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_lobbycreateActionPerformed
         // TODO add your handling code here:
-         try {
+        try {
             // TODO add your handling code here:
-                clientOutput.writeObject("create_lobby:1"); // server a bir lobi oluşturma isteği gönder   
-            } catch (IOException ex) {
+            clientOutput.writeObject("create_lobby:1"); // server a bir lobi oluşturma isteği gönder   
+        } catch (IOException ex) {
             Logger.getLogger(lobbyOperations_page.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btn_lobbycreateActionPerformed
@@ -121,8 +122,8 @@ public class lobbyOperations_page extends javax.swing.JFrame {
         // TODO add your handling code here:
         try {
             // TODO add your handling code here:
-                clientOutput.writeObject("join_lobby:"+txt_lobbyId.getText()); // server a bir lobiye katılma isteği gönder   
-            } catch (IOException ex) {
+            clientOutput.writeObject("join_lobby:" + txt_lobbyId.getText()); // server a bir lobiye katılma isteği gönder   
+        } catch (IOException ex) {
             Logger.getLogger(lobbyOperations_page.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btn_joinlobbyActionPerformed

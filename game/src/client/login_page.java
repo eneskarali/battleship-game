@@ -16,17 +16,18 @@ import java.util.logging.Logger;
 public class login_page extends javax.swing.JFrame {
 
     Client_Server_Manager manager;
-    
+
     /**
      * Creates new form login_page
+     *
      * @throws java.io.IOException
      */
     public login_page() throws IOException {
         initComponents();
         this.setLocationRelativeTo(null);
-        
+
         manager = new Client_Server_Manager();
-        manager.start("localhost", 44444, this);
+        manager.start("localhost", 44444, this); // server a bağlan
     }
 
     /**
@@ -106,10 +107,10 @@ public class login_page extends javax.swing.JFrame {
         try {
             // TODO add your handling code here:
             String message = txt_userName.getText();
-            if(!message.isEmpty()){
-                manager.sendMessage("save_user:"+message);    
+            if (!message.isEmpty()) {
+                manager.sendMessage("save_user:" + message);  // save user mesajını username ile birlikte gönder (save_user:username)
             }
-            
+
         } catch (IOException ex) {
             Logger.getLogger(login_page.class.getName()).log(Level.SEVERE, null, ex);
         }

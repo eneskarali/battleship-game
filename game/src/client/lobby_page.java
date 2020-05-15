@@ -174,27 +174,27 @@ public class lobby_page extends javax.swing.JFrame {
     }
 
     public void setLobbyId(String text) {
-        lbl_lobbyid.setText("Lobby ID: " + text);
+        lbl_lobbyid.setText("Lobby ID: " + text);  // lobby ıd labelı serverdan gelen bilgi ile günceller
     }
 
     public void setPlayer1Name(String name) {
-        lbl_player1.setText(name);
+        lbl_player1.setText(name);  //player1 ismini serverdan gelen bilgi ile günceller
     }
 
     public void setPlayer2Name(String name) {
-        lbl_player2.setText(name);
+        lbl_player2.setText(name); //player2 ismini günceller
     }
 
     public void setPlayer1ToReady(String status) {
         if (status.equals("true")) {
-            jLabel2.setText("->   Ready");
+            jLabel2.setText("->   Ready"); //player1 hazır yap
             jLabel2.setForeground(new Color(0, 204, 51));
         }
     }
 
     public void setPlayer2ToReady(String status) {
         if (status.equals("true")) {
-            jLabel3.setText("->   Ready");
+            jLabel3.setText("->   Ready"); //player2 hazır yap 
             jLabel3.setForeground(new Color(0, 204, 51));
         }
     }

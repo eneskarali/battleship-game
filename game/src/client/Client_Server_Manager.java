@@ -72,7 +72,7 @@ public class Client_Server_Manager {
                         frame = opPage;
                     } else if (command.equals("lobby_created")) {
                         String params[] = content.split("/");  // [0] lobby id, [1] player1 name , [2] player1 id| player 2 henüz katılmadı
-                        lobby_page lobby = new lobby_page(clientOutput,  params[0],params[2]);
+                        lobby_page lobby = new lobby_page(clientOutput, params[0], params[2]);
                         lobby.setVisible(true);
                         frame.setVisible(false);
                         frame = lobby;
@@ -91,16 +91,11 @@ public class Client_Server_Manager {
                     } else if (command.equals("someone_joined")) {
                         lobby_page p = (lobby_page) frame;
                         p.setPlayer2Name(content);
-                    } else if(command.equals("users_status")){
+                    } else if (command.equals("users_status")) {
                         String params[] = content.split("/");  // [0] player1 status, [1] player2 status
                         lobby_page p = (lobby_page) frame;
                         p.setPlayer1ToReady(params[0]);
                         p.setPlayer2ToReady(params[1]);
-                    }
-
-                    // "son" mesajı iletişimi sonlandırır
-                    if (receivedMessage.equals("son")) {
-                        break;
                     }
                 }
             } catch (IOException | ClassNotFoundException ex) {
