@@ -3,15 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/enes/Desktop/battleship-game/game/src/server/Lobby.java</file>
-            <file>file:/home/enes/Desktop/battleship-game/game/src/server/test.java</file>
-            <file>file:/home/enes/Desktop/battleship-game/game/src/server/Game.java</file>
             <file>file:/home/enes/Desktop/battleship-game/game/src/client/login_page.java</file>
             <file>file:/home/enes/Desktop/battleship-game/game/src/client/lobby_page.java</file>
-            <file>file:/home/enes/Desktop/battleship-game/game/src/server/Main_Server.java</file>
-            <file>file:/home/enes/Desktop/battleship-game/game/src/server/Player.java</file>
             <file>file:/home/enes/Desktop/battleship-game/game/src/client/Client_Server_Manager.java</file>
-            <file>file:/home/enes/Desktop/battleship-game/game/src/client/lobbyOperations_page.java</file>
+            <file>file:/home/enes/Desktop/battleship-game/game/src/server/Server_Manager.java</file>
         </group>
     </open-files>
 </project-private>

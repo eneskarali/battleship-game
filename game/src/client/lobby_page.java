@@ -35,6 +35,9 @@ public class lobby_page extends javax.swing.JFrame {
         this.clientOutput = client;
         this.lobbyId = lId;
         this.userId = uId;
+        jLabel2.setVisible(false);
+        jLabel3.setVisible(false);
+        btn_ready.setEnabled(false);
     }
 
     /**
@@ -134,7 +137,8 @@ public class lobby_page extends javax.swing.JFrame {
         // TODO add your handling code here:
         try {
             // TODO add your handling code here:
-            clientOutput.writeObject("im_ready:" + userId + "/" + lobbyId);    // server a başlamaya hazır bilgisi gönder gönder   
+            clientOutput.writeObject("im_ready:" + userId + "/" + lobbyId);    // server a başlamaya hazır bilgisi gönder gönder
+            btn_ready.setEnabled(false);
         } catch (IOException ex) {
             Logger.getLogger(lobbyOperations_page.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -171,6 +175,15 @@ public class lobby_page extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(() -> {
             new lobby_page(null, null, null).setVisible(true);
         });
+    }
+    
+    public void setReadyLabelsVisibiltyTrue(){
+        jLabel2.setVisible(true);
+        jLabel3.setVisible(true);
+    }
+    
+    public void setReadtButtonEnabledTrue(){
+        btn_ready.setEnabled(true);
     }
 
     public void setLobbyId(String text) {
