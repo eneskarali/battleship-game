@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package client;
+package client.pages;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  *
  * @author ZAHID
  */
-public class lobby_page extends javax.swing.JFrame {
+public class Lobby_Page extends javax.swing.JFrame {
 
     ObjectOutputStream clientOutput;
     String lobbyId;
@@ -28,7 +28,7 @@ public class lobby_page extends javax.swing.JFrame {
      * @param lId
      * @param uId
      */
-    public lobby_page(ObjectOutputStream client, String lId, String uId) {
+    public Lobby_Page(ObjectOutputStream client, String lId, String uId) {
         initComponents();
         this.setLocationRelativeTo(null);
 
@@ -140,7 +140,7 @@ public class lobby_page extends javax.swing.JFrame {
             clientOutput.writeObject("im_ready:" + userId + "/" + lobbyId);    // server a başlamaya hazır bilgisi gönder gönder
             btn_ready.setEnabled(false);
         } catch (IOException ex) {
-            Logger.getLogger(lobbyOperations_page.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Lobby_Operations_Page.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btn_readyActionPerformed
 
@@ -161,19 +161,20 @@ public class lobby_page extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(lobby_page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Lobby_Page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(lobby_page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Lobby_Page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(lobby_page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Lobby_Page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(lobby_page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Lobby_Page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
-            new lobby_page(null, null, null).setVisible(true);
+            new Lobby_Page(null, null, null).setVisible(true);
         });
     }
     

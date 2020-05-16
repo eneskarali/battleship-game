@@ -5,6 +5,8 @@
  */
 package server;
 
+import server.model.Player;
+import server.model.Lobby;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -30,7 +32,6 @@ public class Main_Server {
 
         mainServerSocket = new ServerSocket(port);
         System.out.println("ANA SERVER BAŞLATILDI...");
-
         mainServerThread = new Thread(() -> {
             while (!mainServerSocket.isClosed()) {
                 try {

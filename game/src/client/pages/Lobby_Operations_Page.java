@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package client;
+package client.pages;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -14,7 +14,7 @@ import java.util.logging.Logger;
  *
  * @author ZAHID
  */
-public class lobbyOperations_page extends javax.swing.JFrame {
+public class Lobby_Operations_Page extends javax.swing.JFrame {
 
     ObjectOutputStream clientOutput;
 
@@ -23,7 +23,7 @@ public class lobbyOperations_page extends javax.swing.JFrame {
      *
      * @param out
      */
-    public lobbyOperations_page(ObjectOutputStream out) {
+    public Lobby_Operations_Page(ObjectOutputStream out) {
         initComponents();
         clientOutput = out;
 
@@ -114,7 +114,7 @@ public class lobbyOperations_page extends javax.swing.JFrame {
             // TODO add your handling code here:
             clientOutput.writeObject("create_lobby:1"); // server a bir lobi oluşturma isteği gönder   
         } catch (IOException ex) {
-            Logger.getLogger(lobbyOperations_page.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Lobby_Operations_Page.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btn_lobbycreateActionPerformed
 
@@ -124,7 +124,7 @@ public class lobbyOperations_page extends javax.swing.JFrame {
             // TODO add your handling code here:
             clientOutput.writeObject("join_lobby:" + txt_lobbyId.getText()); // server a bir lobiye katılma isteği gönder   
         } catch (IOException ex) {
-            Logger.getLogger(lobbyOperations_page.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Lobby_Operations_Page.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btn_joinlobbyActionPerformed
 
@@ -145,20 +145,22 @@ public class lobbyOperations_page extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(lobbyOperations_page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Lobby_Operations_Page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(lobbyOperations_page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Lobby_Operations_Page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(lobbyOperations_page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Lobby_Operations_Page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(lobbyOperations_page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Lobby_Operations_Page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
-            new lobbyOperations_page(null).setVisible(true);
+            new Lobby_Operations_Page(null).setVisible(true);
         });
     }
 

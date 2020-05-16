@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package client;
+package client.pages;
 
+import client.Client_Server_Manager;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,7 +14,7 @@ import java.util.logging.Logger;
  *
  * @author ZAHID
  */
-public class login_page extends javax.swing.JFrame {
+public class Login_Page extends javax.swing.JFrame {
 
     Client_Server_Manager manager;
 
@@ -22,7 +23,7 @@ public class login_page extends javax.swing.JFrame {
      *
      * @throws java.io.IOException
      */
-    public login_page() throws IOException {
+    public Login_Page() throws IOException {
         initComponents();
         this.setLocationRelativeTo(null);
 
@@ -112,7 +113,7 @@ public class login_page extends javax.swing.JFrame {
             }
 
         } catch (IOException ex) {
-            Logger.getLogger(login_page.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Login_Page.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btn_loginActionPerformed
 
@@ -133,22 +134,23 @@ public class login_page extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(login_page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Login_Page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(login_page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Login_Page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(login_page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Login_Page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(login_page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Login_Page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
             try {
-                new login_page().setVisible(true);
+                new Login_Page().setVisible(true);
             } catch (IOException ex) {
-                Logger.getLogger(login_page.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Login_Page.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }

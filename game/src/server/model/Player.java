@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package server;
+package server.model;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -15,14 +15,14 @@ import java.util.UUID;
  */
 public class Player {
 
-    String id;
-    String userName;
-    boolean isReady = false;
+    public String id;
+    public String userName;
+    public boolean isReady = false;
 
-    ObjectInputStream clientInput;
-    ObjectOutputStream clientOutput;
+    public ObjectInputStream clientInput;
+    public ObjectOutputStream clientOutput;
 
-    int gameMatrix[][] = new int[10][10];
+    public int gameMatrix[][] = new int[10][10];
 
     public Player(String id, String userName) {
         this.id = id;

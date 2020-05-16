@@ -5,6 +5,8 @@
  */
 package client;
 
+import client.pages.Lobby_Page;
+import client.pages.Lobby_Operations_Page;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -23,7 +25,7 @@ public class Client_Server_Manager {
     private Thread clientThread;
     private JFrame frame;
 
-    protected void start(String host, int port, JFrame activeFrame) throws IOException {
+    public void start(String host, int port, JFrame activeFrame) throws IOException {
         // client soketi oluşturma (ip + port numarası)
         clientSocket = new Socket(host, port);
 
@@ -41,7 +43,7 @@ public class Client_Server_Manager {
 
     }
 
-    protected void sendMessage(String message) throws IOException {
+    public void sendMessage(String message) throws IOException {
         clientOutput.writeObject(message);
     }
 
@@ -64,7 +66,7 @@ public class Client_Server_Manager {
                     String content = message[1];
 
                     if (command.equals("user_saved")) {
-                        lobbyOperations_page opPage = new lobbyOperations_page(clientOutput);
+                        Lobby_Operations_Page opPage = new Lobby_Operations_Page(clientOutput);
                         frame.setVisible(false);
                         opPage.setVisible(true);
                         String params[] = content.split("/");  // [0] userid, [1] username
@@ -72,7 +74,7 @@ public class Client_Server_Manager {
                         frame = opPage;
                     } else if (command.equals("lobby_created")) {
                         String params[] = content.split("/");  // [0] lobby id, [1] player1 name , [2] player1 id| player 2 henüz katılmadı
-                        lobby_page lobby = new lobby_page(clientOutput, params[0], params[2]);
+                        Lobby_Page lobby = new Lobby_Page(clientOutput, params[0], params[2]);
                         lobby.setVisible(true);
                         frame.setVisible(false);
                         frame = lobby;
@@ -81,7 +83,7 @@ public class Client_Server_Manager {
                         lobby.setPlayer2Name("");      // katılmadığından dolayı boş set ediliyor.
                     } else if (command.equals("joined_to_lobby")) {
                         String params[] = content.split("/");  // [0] lobbyID, [1] player1, [2] player2, [3] player2 id
-                        lobby_page lobby = new lobby_page(clientOutput, params[0], params[3]);
+                        Lobby_Page lobby = new Lobby_Page(clientOutput, params[0], params[3]);
                         lobby.setVisible(true);
                         frame.setVisible(false);
                         frame = lobby;
@@ -91,13 +93,13 @@ public class Client_Server_Manager {
                         lobby.setReadyLabelsVisibiltyTrue();   //ready veya not ready label larını görünür yap
                         lobby.setReadtButtonEnabledTrue();
                     } else if (command.equals("someone_joined")) {
-                        lobby_page p = (lobby_page) frame;
+                        Lobby_Page p = (Lobby_Page) frame;
                         p.setPlayer2Name(content);
                         p.setReadyLabelsVisibiltyTrue();  // ready veya not ready label larını görünür yap
                         p.setReadtButtonEnabledTrue();
                     } else if (command.equals("users_status")) {
                         String params[] = content.split("/");  // [0] player1 status, [1] player2 status
-                        lobby_page p = (lobby_page) frame;
+                        Lobby_Page p = (Lobby_Page) frame;
                         p.setPlayer1ToReady(params[0]);
                         p.setPlayer2ToReady(params[1]);
                     }

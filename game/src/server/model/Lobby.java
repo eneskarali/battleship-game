@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package server;
+package server.model;
 
 import java.util.UUID;
 
@@ -13,11 +13,11 @@ import java.util.UUID;
  */
 public class Lobby {
 
-    boolean readyToStart = false;
+    public boolean readyToStart = false;
 
-    String lobbyId;
+    public String lobbyId;
 
-    Player players[] = new Player[2];
+    public Player players[] = new Player[2];
 
     public void generateLobbyId() {
         String lid = UUID.randomUUID().toString();
