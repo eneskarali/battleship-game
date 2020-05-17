@@ -13,8 +13,8 @@ public class Game {
 
     String gameId;
 
-    Player player_1;
-    Player player_2;
+    public Player player_1;
+    public Player player_2;
 
     public Game(Player player_1, Player player_2) {
         this.player_1 = player_1;
@@ -25,7 +25,7 @@ public class Game {
         this.gameId = id;
     }
 
-    public void gameOver() {
+    public int gameOver() {
         int count1 = 0;
         int count2 = 0;
         for (int i = 0; i < 10; i++) {
@@ -39,8 +39,16 @@ public class Game {
             }
         }
 
-        if (count1 == 20 || count2 == 20) {
-            System.out.println("oyun bitti");
+        if (count1 >= 14) {
+            return 1;
         }
+        else if (count2 >= 14){
+            return 2;
+        }
+        return 0;
+    }
+    
+    public boolean readyToStart(){
+        return this.player_1.isReady && this.player_2.isReady;
     }
 }
