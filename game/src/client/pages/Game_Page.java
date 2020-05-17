@@ -15,12 +15,14 @@ import javax.swing.JButton;
  *
  * @author Faruk KAAN
  */
-public class playerScreen extends javax.swing.JFrame {
+public class Game_Page extends javax.swing.JFrame {
 
     /**
      * Creates new form playerScreen
      */
-    public int row, col, shipSize;
+    public int row, col, shipSize, remainingShipSize;
+    public int prevCoords[];
+    boolean aShipSelected = false;
     JButton myMatrix[][] = new JButton[10][10];
     JButton enemyMatrix[][] = new JButton[10][10];
 
@@ -37,18 +39,28 @@ public class playerScreen extends javax.swing.JFrame {
         public void actionPerformed(ActionEvent e) {
             row = r;
             col = c;
-            placeShips(shipSize);
+            if (myMatrix[row][col].getBackground().getRGB() != -16777216) {
+                placeShips(shipSize);
+            }
         }
     }
 
-    public playerScreen() {
+    public Game_Page() {
         initComponents();
+
+        prevCoords = new int[2];
+        btn_basla.setEnabled(false);
+
         int row = 0, col = 0;
         Component c[] = jPanel1.getComponents();
         Component enemyC[] = jPanel2.getComponents();
         for (int i = 0; i < c.length; i++) {
-            myMatrix[row][col] = (JButton) c[i];
-            enemyMatrix[row][col] = (JButton) enemyC[i];
+            JButton myb = (JButton) c[i];
+            myb.setEnabled(false);
+            myMatrix[row][col] = myb;
+            JButton enemyb = (JButton) enemyC[i];
+            enemyb.setEnabled(false);
+            enemyMatrix[row][col] = enemyb;
             myMatrix[row][col].addActionListener(new ButtonPressed(row, col));
             col++;
             if (col == 10) {
@@ -56,20 +68,80 @@ public class playerScreen extends javax.swing.JFrame {
                 col = 0;
             }
         }
+
+    }
+
+    public void setAllElementsEnablty(boolean status, JButton matrix[][]) {
+        for (JButton[] buttons : matrix) {
+            for (JButton btn : buttons) {
+                
+                if(btn.getBackground().getRGB() != -16777216){
+                    System.out.println(btn.getBackground().getRGB());
+                    btn.setEnabled(status);    
+                }
+                
+            }
+        }
     }
 
     public void placeShips(int size) {
-        for (JButton[] buttons : myMatrix) {
-            for (JButton btn : buttons) {
-                btn.setEnabled(false);
+        if (!aShipSelected) {
+            setAllElementsEnablty(false, myMatrix);
+            myMatrix[row][col].setEnabled(true);
+            myMatrix[row][col].setBackground(Color.black);
+            if (row < 9) {
+                myMatrix[row + 1][col].setEnabled(true);
+            }
+            if (row > 0) {
+                myMatrix[row - 1][col].setEnabled(true);
+            }
+
+            if (col < 9) {
+                myMatrix[row][col + 1].setEnabled(true);
+            }
+            if (col > 0) {
+                myMatrix[row][col - 1].setEnabled(true);
+            }
+
+            aShipSelected = true;
+            remainingShipSize = size - 1;
+            prevCoords[0] = row;
+            prevCoords[1] = col;
+        } else {
+            if (remainingShipSize > 0) {
+
+                int rowCoe = prevCoords[0] - row;
+                int colCoe = prevCoords[1] - col;
+                myMatrix[row][col].setEnabled(true);
+                myMatrix[row][col].setBackground(Color.black);
+
+                if (remainingShipSize > 1 && row - rowCoe < 10 && row - rowCoe >= 0 && col - colCoe < 10 && col - colCoe >= 0) {
+                    myMatrix[row - rowCoe][col - colCoe].setEnabled(true);
+                } else {
+                    System.out.println(btn_carrier.getBackground().getRGB());
+                    btn_battleship.setEnabled(btn_battleship.isEnabled() == false && btn_battleship.getBackground().getRGB() != -16750849);
+                    btn_carrier.setEnabled(btn_carrier.isEnabled() == false && btn_carrier.getBackground().getRGB() != -16750849);
+                    btn_patrol.setEnabled(btn_patrol.isEnabled() == false && btn_patrol.getBackground().getRGB() != -16750849);
+                    btn_seawolf.setEnabled(btn_seawolf.isEnabled() == false && btn_seawolf.getBackground().getRGB() != -16750849);
+                    aShipSelected = false;
+                }
+
+                if (remainingShipSize == size - 1 && prevCoords[0] + rowCoe < 10 && prevCoords[0] + rowCoe >= 0 && prevCoords[1] + colCoe < 10 && prevCoords[1] + colCoe >= 0) {
+                    myMatrix[prevCoords[0] + rowCoe][prevCoords[1] + colCoe].setEnabled(false);
+                }
+                if (prevCoords[0] - colCoe < 10 && prevCoords[0] - colCoe >= 0 && prevCoords[1] - rowCoe < 10 && prevCoords[1] - rowCoe >= 0) {
+                    myMatrix[prevCoords[0] - colCoe][prevCoords[1] - rowCoe].setEnabled(false);
+                }
+                if (prevCoords[0] + colCoe < 10 && prevCoords[0] + colCoe >= 0 && prevCoords[1] + rowCoe < 10 && prevCoords[1] + rowCoe >= 0) {
+                    myMatrix[prevCoords[0] + colCoe][prevCoords[1] + rowCoe].setEnabled(false);
+                }
+                prevCoords[0] = row;
+                prevCoords[1] = col;
+                remainingShipSize--;
+
             }
         }
-        myMatrix[row][col].setEnabled(true);
-        myMatrix[row][col].setBackground(Color.black);
-        myMatrix[row + (size - 1)][col].setEnabled(true);
-        myMatrix[row - (size - 1)][col].setEnabled(true);
-        myMatrix[row][col + (size - 1)].setEnabled(true);
-        myMatrix[row][col - (size - 1)].setEnabled(true);
+
     }
 
     /**
@@ -289,6 +361,7 @@ public class playerScreen extends javax.swing.JFrame {
         btn_seawolf = new javax.swing.JButton();
         btn_patrol = new javax.swing.JButton();
         btn_basla = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setModalExclusionType(java.awt.Dialog.ModalExclusionType.TOOLKIT_EXCLUDE);
@@ -929,35 +1002,45 @@ public class playerScreen extends javax.swing.JFrame {
             }
         });
 
+        btn_basla.setBackground(new java.awt.Color(0, 102, 255));
+        btn_basla.setText("BAŞLA");
+        btn_basla.setPreferredSize(new java.awt.Dimension(105, 35));
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(btn_carrier, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btn_battleship, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btn_seawolf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btn_patrol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btn_seawolf, javax.swing.GroupLayout.DEFAULT_SIZE, 171, Short.MAX_VALUE)
+                    .addComponent(btn_carrier, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btn_battleship, javax.swing.GroupLayout.DEFAULT_SIZE, 162, Short.MAX_VALUE)
+                    .addComponent(btn_patrol, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(38, 38, 38)
+                .addComponent(btn_basla, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(135, 135, 135))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(25, 25, 25)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btn_carrier, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btn_battleship, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btn_seawolf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btn_patrol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btn_carrier, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btn_battleship, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btn_seawolf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btn_patrol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(btn_basla, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
 
-        btn_basla.setText("BAŞLA");
-        btn_basla.setPreferredSize(new java.awt.Dimension(105, 35));
+        jLabel1.setText(" ");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -965,32 +1048,31 @@ public class playerScreen extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(30, 30, 30)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(70, 70, 70)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btn_basla, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(15, 15, 15))))
+                        .addGap(127, 127, 127)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(100, 100, 100)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(32, 32, 32)
-                        .addComponent(btn_basla, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -998,21 +1080,41 @@ public class playerScreen extends javax.swing.JFrame {
 
     private void btn_carrierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_carrierActionPerformed
         // TODO add your handling code here:
+        setAllElementsEnablty(true, myMatrix);
+        btn_battleship.setEnabled(false);
+        btn_patrol.setEnabled(false);
+        btn_seawolf.setEnabled(false);
+        btn_carrier.setBackground(new Color(0, 102, 255));
         shipSize = 5;
     }//GEN-LAST:event_btn_carrierActionPerformed
 
     private void btn_battleshipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_battleshipActionPerformed
         // TODO add your handling code here:
+        setAllElementsEnablty(true, myMatrix);
+        btn_carrier.setEnabled(false);
+        btn_patrol.setEnabled(false);
+        btn_seawolf.setEnabled(false);
+        btn_battleship.setBackground(new Color(0, 102, 255));
         shipSize = 4;
     }//GEN-LAST:event_btn_battleshipActionPerformed
 
     private void btn_seawolfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_seawolfActionPerformed
         // TODO add your handling code here:
+        setAllElementsEnablty(true, myMatrix);
+        btn_battleship.setEnabled(false);
+        btn_patrol.setEnabled(false);
+        btn_carrier.setEnabled(false);
+        btn_seawolf.setBackground(new Color(0, 102, 255));
         shipSize = 3;
     }//GEN-LAST:event_btn_seawolfActionPerformed
 
     private void btn_patrolActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_patrolActionPerformed
         // TODO add your handling code here:
+        setAllElementsEnablty(true, myMatrix);
+        btn_battleship.setEnabled(false);
+        btn_carrier.setEnabled(false);
+        btn_seawolf.setEnabled(false);
+        btn_patrol.setBackground(new Color(0, 102, 255));
         shipSize = 2;
     }//GEN-LAST:event_btn_patrolActionPerformed
 
@@ -1033,20 +1135,27 @@ public class playerScreen extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(playerScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Game_Page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(playerScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Game_Page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(playerScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Game_Page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(playerScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Game_Page.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new playerScreen().setVisible(true);
+                new Game_Page().setVisible(true);
             }
         });
     }
@@ -1257,6 +1366,7 @@ public class playerScreen extends javax.swing.JFrame {
     private javax.swing.JButton jButton97;
     private javax.swing.JButton jButton98;
     private javax.swing.JButton jButton99;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
