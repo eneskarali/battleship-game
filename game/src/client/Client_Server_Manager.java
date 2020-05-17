@@ -135,16 +135,37 @@ public class Client_Server_Manager {
                         }
                         case "everyone_ready": {
                             // gelen parametreleri parçala
-                            String params[] = content.split("/"); // [0] lobbyID, [1]player1 name, [2] player2 name
+                            String params[] = content.split("/"); // [0] lobbyID, [1]player1 name, [2] player2 name, [3]userID
                             
                             //oyun sayfasona geçişi sağla
-                            Game_Page gPage = new Game_Page(clientOutput, params[0],params[1],params[2]);
+                            Game_Page gPage = new Game_Page(clientOutput, params[0],params[1],params[2],params[3]);
                             gPage.setVisible(true);
                             frame.setVisible(false);
                             
                             //aktif frame i oyun sayfası olarak ayarla
                             frame = gPage;
                             break;
+                        }
+                        case "ready_to_start": {
+                            Game_Page gp = (Game_Page)frame;
+                            gp.readyAll(content);
+                            break;
+                        }
+                        case "hit_made": {
+                            String params[] = content.split("/");
+                            Game_Page gp = (Game_Page)frame;
+                            gp.made_hit(Integer.parseInt(params[0]), Integer.parseInt(params[1]), Integer.parseInt(params[2]));
+                            break;
+                        }
+                        case "came_hit": {
+                            String params[] = content.split("/");
+                            Game_Page gp = (Game_Page)frame;
+                            gp.came_hit(Integer.parseInt(params[0]), Integer.parseInt(params[1]), Integer.parseInt(params[2]));
+                            break;
+                        }
+                        case "game_over": {
+                            Game_Page gp = (Game_Page)frame;
+                            gp.gameOver(Integer.parseInt(content));
                         }
                         default:
                             break;

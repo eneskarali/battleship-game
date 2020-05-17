@@ -101,7 +101,24 @@ public class Main_Server {
         g.setGameId(gameID);  // lobbyID yi gameID olarak ayarla
         activeGames.put(gameID, g); //oyunu aktif oyunlar listesine ekle
 
+        //oyuncu durumlarını hazır değil yap
+        player_1.isReady = false;
+        player_2.isReady = false;
+
         activeLobbys.remove(gameID);  // gameID geldikleri lobbyID ye eşit, oyun başladığı için lobby silindi
+
+    }
+
+    protected void readyToStart(String p_id, String g_id, int matrix[][]) throws IOException {
+        Player p = players.get(p_id);
+        Game g = activeGames.get(g_id);
+        p.isReady = true;
+        p.setGameMatrix(matrix);
+
+        if (g.readyToStart()) {
+            g.player_1.clientOutput.writeObject("ready_to_start:1"); // send all ready
+            g.player_2.clientOutput.writeObject("ready_to_start:2"); // send all ready
+        }
 
     }
 
@@ -122,15 +139,43 @@ public class Main_Server {
                 System.out.println("username: " + l.players[0].userName + " | username: " + l.players[1].userName + " -> Hazır!");
 
                 //player 1 e herkesin hazır olduğu bilgisini ve kullanıcı isimlerini gönderir
-                l.players[0].clientOutput.writeObject("everyone_ready:" + l.lobbyId + "/" + l.players[0].userName + "/" + l.players[1].userName);
+                l.players[0].clientOutput.writeObject("everyone_ready:" + l.lobbyId + "/" + l.players[0].userName + "/" + l.players[1].userName + "/" + l.players[0].id);
                 //player 2 ye herkesin hazır olduğu bilgisini ve kullanıcı isimlerini gönderiri
-                l.players[1].clientOutput.writeObject("everyone_ready:" + l.lobbyId + "/" + l.players[0].userName + "/" + l.players[1].userName);
+                l.players[1].clientOutput.writeObject("everyone_ready:" + l.lobbyId + "/" + l.players[1].userName + "/" + l.players[0].userName + "/" + l.players[1].id);
 
                 startGame(l.players[0], l.players[1], l.lobbyId);  // tüm oyuncular hazır olduğu için oyunu başlat
             }
         } else {
             System.out.println("Hata: hazır konumuna getirilecek kullanıcı veya oda bulunamadı!");
         }
+    }
+
+    protected void hit(String gameID, String p_id, int x, int y) throws IOException {
+        Game g = activeGames.get(gameID);
+        Player p = players.get(p_id);
+        if (p == g.player_1) {
+            int r = g.player_2.checkAndUptadeMatrix(x, y);
+            p.clientOutput.writeObject("hit_made:" + r + "/" + x + "/" + y);
+            g.player_2.clientOutput.writeObject("came_hit:"+ r + "/" + x + "/" + y);
+        }else if (p == g.player_2){
+            int r = g.player_1.checkAndUptadeMatrix(x, y);
+            p.clientOutput.writeObject("hit_made:" + r + "/" + x + "/" + y);
+            g.player_1.clientOutput.writeObject("came_hit:"+ r + "/" + x + "/" + y);
+        } else {
+            System.out.println("kullanıcı eşleşmedi");
+        }
+        
+        int w = g.gameOver();
+        
+         if(w == 1){
+             g.player_1.clientOutput.writeObject("game_over:1");  //  1 = kazandın
+             g.player_2.clientOutput.writeObject("game_over:0");  //  0 = kayettin
+         } else if (w == 2){
+             g.player_2.clientOutput.writeObject("game_over:1");  //  1 = kazandın
+             g.player_1.clientOutput.writeObject("game_over:0");  //  0 = kayettin
+         }
+        
+
     }
 
     //istenen bir client a istenen mesajı gönder
@@ -166,54 +211,85 @@ public class Main_Server {
                     //gelen mesajı çıktı olarak yaz
                     System.out.println(this.getName() + " : " + receivedMessage);
 
+                    String command;
+                    String content;
+                    Object[] o = null;
                     // client'in gönderdiği mesajı komut ve içerik olarak parçala
-                    String message[] = receivedMessage.toString().split(":");
-                    String command = message[0];
-                    String content = message[1];
+                    if (receivedMessage instanceof String) {
+                        String message[] = receivedMessage.toString().split(":");
+                        command = message[0];
+                        content = message[1];
+                    } else {
+                        o = (Object[]) receivedMessage;
+                        command = o[0].toString();
+                        content = null;
+                    }
 
                     //eğer save_user komutu gelmişse gelen username ile birlikte kullanıcı oluştur ve kayıt et
                     switch (command) {
-                        case "save_user":
+                        case "save_user": {
                             // save_user:username şeklinde mesaj gönderilmeli
                             p = createPlayer(content);
                             p.clientInput = clientInput;
                             p.clientOutput = clientOutput;
-                            
+
                             // kullanıcı kayıt edildi bilgisini client a gönder
-                            sendMessageToClient(p, "user_saved:" + p.id + "/" + p.userName);  
+                            sendMessageToClient(p, "user_saved:" + p.id + "/" + p.userName);
                             break;
-                        case "create_lobby":
+                        }
+                        case "create_lobby": {
                             // parametresiz olarak create_lobby: şeklinde gönderilebilir
                             if (p != null) {
                                 Lobby l;
                                 l = createLobby(p);
-                                
+
                                 // lobby oluşturuldu bilgisi client a gönderilir
-                                sendMessageToClient(p, "lobby_created:" + l.lobbyId + "/" + p.userName + "/" + p.id); 
+                                sendMessageToClient(p, "lobby_created:" + l.lobbyId + "/" + p.userName + "/" + p.id);
                             } else {
                                 System.out.println("Kullanıcı bulunamadı!");
                             }
                             break;
-                        case "join_lobby":
+                        }
+                        case "join_lobby": {
                             // join_lobby:lobbyId şeklinde mesaj gönderilmeli
                             if (p != null) {
                                 Lobby l;
                                 l = joinLobby(p, content);
-                                
+
                                 //lobiye katılma bilgisi client a gönderilir
-                                sendMessageToClient(p, "joined_to_lobby:" + l.lobbyId + "/" + l.players[0].userName + "/" + l.players[1].userName + "/" + p.id); 
+                                sendMessageToClient(p, "joined_to_lobby:" + l.lobbyId + "/" + l.players[0].userName + "/" + l.players[1].userName + "/" + p.id);
                                 sendMessageToClient(l.players[0], "someone_joined:" + l.players[1].userName);
                             } else {
                                 System.out.println("Kullanıcı bulunamadı!");
                             }
                             break;
-                        case "im_ready":
+                        }
+                        case "im_ready": {
                             // im_ready:userId/lobbyId şeklinde mesaj gönderilmeli
                             String params[] = content.split("/");
                             String userId = params[0];                             // get userId
                             String lobbyId = params[1];                            // get lobbyId
                             setPlayerStatusToReady(userId, lobbyId);               // gelen player ı hazır olarak set et     
                             break;
+                        }
+                        case "start_game": {
+                            // start_game:gameID/UserId
+                            String gameID = o[1].toString();
+                            String userID = o[2].toString();
+                            int matrix[][] = (int[][]) o[3];
+
+                            readyToStart(userID, gameID, matrix);
+                            break;
+                        }
+                        case "hit": {
+                            String params[] = content.split("/");
+                            String gameID = params[0];
+                            String playerId = params[1];
+                            int x = Integer.parseInt(params[2]);
+                            int y = Integer.parseInt(params[3]);
+                            hit(gameID, playerId, x, y);
+                            break;
+                        }
                         default:
                             //herhangi bir komut ile eşleşme sağlanamazsa
                             System.out.println("Server a gelen komut anlaşılamadı!: " + command);

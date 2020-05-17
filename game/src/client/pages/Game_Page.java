@@ -9,9 +9,13 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -23,10 +27,10 @@ public class Game_Page extends javax.swing.JFrame {
      * Creates new form playerScreen
      */
     public ObjectOutputStream clientOutput;
-    
-    String p1_name, p2_name;
-    
-    public int row, col, shipSize, remainingShipSize;
+
+    String p1_name, p2_name, lobby_id, userID;
+
+    public int row, col, erow, ecol, shipSize, remainingShipSize;
     public int prevCoords[];
     boolean aShipSelected = false;
     public int shipMatrix[][] = new int[10][10];
@@ -52,15 +56,44 @@ public class Game_Page extends javax.swing.JFrame {
         }
     }
 
-    public Game_Page(ObjectOutputStream out, String lID, String p1Name, String p2Name) {
+    class enemyButtonPressed implements ActionListener {
+
+        int r, c;
+
+        public enemyButtonPressed(int row, int col) {
+            r = row;
+            c = col;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            erow = r;
+            ecol = c;
+            if(enemyMatrix[erow][ecol].getBackground().getRGB() != -65536 && enemyMatrix[erow][ecol].getBackground().getRGB() != -16776961 ){
+                try {
+                    clientOutput.writeObject("hit:"+lobby_id+"/"+userID+"/"+erow+"/"+ecol);
+                } catch (IOException ex) {
+                    Logger.getLogger(Game_Page.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+
+    public Game_Page(ObjectOutputStream out, String lID, String p1Name, String p2Name, String uId) {
         initComponents();
 
         prevCoords = new int[2];
         btn_basla.setEnabled(false);
-        
+
         this.clientOutput = out;
         this.p1_name = p1Name;
         this.p2_name = p2Name;
+        this.lobby_id = lID;
+        this.userID = uId;
+
+        jLabel2.setText(p1Name + " (You)");
+        jLabel3.setText(p2Name);
+        jLabel5.setText("GAME ID: " + lobby_id);
 
         int row = 0, col = 0;
         Component c[] = jPanel1.getComponents();
@@ -73,6 +106,7 @@ public class Game_Page extends javax.swing.JFrame {
             enemyb.setEnabled(false);
             enemyMatrix[row][col] = enemyb;
             myMatrix[row][col].addActionListener(new ButtonPressed(row, col));
+            enemyMatrix[row][col].addActionListener(new enemyButtonPressed(row, col));
             col++;
             if (col == 10) {
                 row++;
@@ -85,14 +119,80 @@ public class Game_Page extends javax.swing.JFrame {
     public void setAllElementsEnablty(boolean status, JButton matrix[][]) {
         for (JButton[] buttons : matrix) {
             for (JButton btn : buttons) {
-                
-                if(btn.getBackground().getRGB() != -16777216){
-                    System.out.println(btn.getBackground().getRGB());
-                    btn.setEnabled(status);    
+
+                if (btn.getBackground().getRGB() != -16777216) {
+                    btn.setEnabled(status);
                 }
-                
+
             }
         }
+    }
+
+    public void setEnemyMatrix(boolean status) {
+        for (JButton[] jButtons : enemyMatrix) {
+            for (JButton jButton : jButtons) {
+                jButton.setEnabled(status);
+            }
+        }
+    }
+    
+    public void turn(boolean status){
+        for (JButton[] jButtons : enemyMatrix) {
+            for (JButton b : jButtons) {
+                if(b.getBackground().getRGB() != -65536 && b.getBackground().getRGB() != -16776961 && b.getBackground().getRGB() != -16777216)
+                b.setEnabled(status);
+            }
+        }
+    }
+
+    public void readyAll(String who) {
+        if (who.equals("1")) {
+            jLabel6.setText("Started! Your turn, Take a SHOT!");
+            setEnemyMatrix(true);
+        } else {
+            jLabel6.setText("Started! Waiting For The Your Enemy's Shot...");
+        }
+        btn_basla.setText("STARTED");
+    }
+    
+    public void made_hit(int r, int x, int y){
+        if(r ==2){
+            enemyMatrix[x][y].setBackground(Color.RED);
+        }
+        else if (r == -1){
+            enemyMatrix[x][y].setBackground(Color.BLUE);
+        }
+        turn(false);
+        jLabel6.setText("Waiting For The Your Enemy's Shot...");
+    }
+    
+    public void came_hit(int r, int x, int y){
+         myMatrix[x][y].setEnabled(true);
+        if(r ==2){
+            myMatrix[x][y].setBackground(Color.RED);
+        }
+        else if (r == -1){
+            myMatrix[x][y].setBackground(Color.BLUE);
+        }
+        turn(true);
+        jLabel6.setText("Your turn, Take a SHOT!");
+    }
+    
+    public void gameOver(int w) throws IOException{
+        if(w == 1){
+            JOptionPane.showMessageDialog(this, "YOU LOSE!");
+            this.setVisible(false);
+            Login_Page l = new Login_Page();
+            l.setVisible(true);
+        } else if(w == 0){
+            JOptionPane.showMessageDialog(this, "YOU WIN!");
+            this.setVisible(false);
+            Login_Page l = new Login_Page();
+            l.setVisible(true);
+        }
+    }
+    public void checkAlignmentEnd(boolean status) {
+        btn_basla.setEnabled(status);
     }
 
     public void placeShips(int size) {
@@ -105,31 +205,31 @@ public class Game_Page extends javax.swing.JFrame {
             shipMatrix[row][col] = 1;
             for (int i = 0; i < 4; i++) {
                 for (int j = 1; j < size; j++) {
-                    if (i==0 && (row + j) <= 9 && shipMatrix[row + j][col] == 1) {
+                    if (i == 0 && (row + j) <= 9 && shipMatrix[row + j][col] == 1) {
                         validPlacement[i] = false;
                     }
-                    if (i==1 && row > j && shipMatrix[row - j][col] == 1) {
+                    if (i == 1 && row > j && shipMatrix[row - j][col] == 1) {
                         validPlacement[i] = false;
                     }
-                    if (i==2 && (col + j) <= 9 && shipMatrix[row][col + j] == 1) {
+                    if (i == 2 && (col + j) <= 9 && shipMatrix[row][col + j] == 1) {
                         validPlacement[i] = false;
                     }
-                    if (i==3 && col > j && shipMatrix[row][col - j] == 1) {
+                    if (i == 3 && col > j && shipMatrix[row][col - j] == 1) {
                         validPlacement[i] = false;
                     }
                 }
             }
-            if (row < 9 && (9-row) >= (size-1) && validPlacement[0]) {
+            if (row < 9 && (9 - row) >= (size - 1) && validPlacement[0]) {
                 myMatrix[row + 1][col].setEnabled(true);
             }
-            if (row > 0 && row >= (size-1) && validPlacement[1]) {
+            if (row > 0 && row >= (size - 1) && validPlacement[1]) {
                 myMatrix[row - 1][col].setEnabled(true);
             }
 
-            if (col < 9 && (9-col) >= (size-1) && validPlacement[2]) {
+            if (col < 9 && (9 - col) >= (size - 1) && validPlacement[2]) {
                 myMatrix[row][col + 1].setEnabled(true);
             }
-            if (col > 0 && col >= (size-1) && validPlacement[3]) {
+            if (col > 0 && col >= (size - 1) && validPlacement[3]) {
                 myMatrix[row][col - 1].setEnabled(true);
             }
 
@@ -149,12 +249,13 @@ public class Game_Page extends javax.swing.JFrame {
                 if (remainingShipSize > 1 && row - rowCoe < 10 && row - rowCoe >= 0 && col - colCoe < 10 && col - colCoe >= 0) {
                     myMatrix[row - rowCoe][col - colCoe].setEnabled(true);
                 } else {
-                    System.out.println(btn_carrier.getBackground().getRGB());
                     btn_battleship.setEnabled(btn_battleship.isEnabled() == false && btn_battleship.getBackground().getRGB() != -16750849);
                     btn_carrier.setEnabled(btn_carrier.isEnabled() == false && btn_carrier.getBackground().getRGB() != -16750849);
                     btn_patrol.setEnabled(btn_patrol.isEnabled() == false && btn_patrol.getBackground().getRGB() != -16750849);
                     btn_seawolf.setEnabled(btn_seawolf.isEnabled() == false && btn_seawolf.getBackground().getRGB() != -16750849);
                     aShipSelected = false;
+                    boolean isAlignmentEnd = !btn_battleship.isEnabled() && !btn_carrier.isEnabled() && !btn_patrol.isEnabled() && !btn_seawolf.isEnabled();
+                    checkAlignmentEnd(isAlignmentEnd);
                 }
 
                 if (remainingShipSize == size - 1 && prevCoords[0] + rowCoe < 10 && prevCoords[0] + rowCoe >= 0 && prevCoords[1] + colCoe < 10 && prevCoords[1] + colCoe >= 0 && shipMatrix[prevCoords[0] + rowCoe][prevCoords[1] + colCoe] == 0) {
@@ -392,7 +493,12 @@ public class Game_Page extends javax.swing.JFrame {
         btn_seawolf = new javax.swing.JButton();
         btn_patrol = new javax.swing.JButton();
         btn_basla = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setModalExclusionType(java.awt.Dialog.ModalExclusionType.TOOLKIT_EXCLUDE);
@@ -1034,8 +1140,19 @@ public class Game_Page extends javax.swing.JFrame {
         });
 
         btn_basla.setBackground(new java.awt.Color(0, 102, 255));
-        btn_basla.setText("BAŞLA");
+        btn_basla.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        btn_basla.setText("START");
         btn_basla.setPreferredSize(new java.awt.Dimension(105, 35));
+        btn_basla.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_baslaActionPerformed(evt);
+            }
+        });
+
+        jLabel6.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(51, 51, 255));
+        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel6.setText("First You should line up your ships!");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -1044,15 +1161,17 @@ public class Game_Page extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btn_seawolf, javax.swing.GroupLayout.DEFAULT_SIZE, 171, Short.MAX_VALUE)
+                    .addComponent(btn_seawolf, javax.swing.GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
                     .addComponent(btn_carrier, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(btn_battleship, javax.swing.GroupLayout.DEFAULT_SIZE, 162, Short.MAX_VALUE)
                     .addComponent(btn_patrol, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(38, 38, 38)
+                .addGap(18, 18, 18)
                 .addComponent(btn_basla, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(135, 135, 135))
+                .addGap(18, 18, 18)
+                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 396, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1067,11 +1186,29 @@ public class Game_Page extends javax.swing.JFrame {
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btn_seawolf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btn_patrol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(btn_basla, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btn_basla, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel6)))
                 .addContainerGap(25, Short.MAX_VALUE))
         );
 
         jLabel1.setText(" ");
+
+        jLabel2.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(0, 153, 51));
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel2.setText("you");
+
+        jLabel3.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 0, 0));
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel3.setText("your enemy");
+
+        jLabel4.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel4.setText("BATTLESHIP GAME");
+
+        jLabel5.setText("GAME ID:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -1081,26 +1218,43 @@ public class Game_Page extends javax.swing.JFrame {
                 .addGap(30, 30, 30)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(70, 70, 70)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
-                .addComponent(jLabel1)
+                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(41, 41, 41)
+                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 289, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE))
+                                .addGap(70, 70, 70)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
+                        .addComponent(jLabel1)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(100, 100, 100)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(21, 21, 21)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(42, 42, 42)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel2))
+                .addGap(8, 8, 8)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -1147,6 +1301,25 @@ public class Game_Page extends javax.swing.JFrame {
         shipSize = 2;
     }//GEN-LAST:event_btn_patrolActionPerformed
 
+    private void btn_baslaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_baslaActionPerformed
+        jLabel6.setText("Waiting for the other player...");
+        btn_basla.setEnabled(false);
+        try {
+            // TODO add your handling code here:
+            Object[] data = new Object[4];
+            data[0] = "start_game";
+            data[1] = lobby_id;
+            data[2] = userID;
+            data[3] = shipMatrix;
+            clientOutput.writeObject(data);  // servera oyunu başlatma isteği gönder.
+
+        } catch (IOException ex) {
+            Logger.getLogger(Game_Page.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+
+    }//GEN-LAST:event_btn_baslaActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1183,7 +1356,7 @@ public class Game_Page extends javax.swing.JFrame {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
-            new Game_Page(null,null,null,null).setVisible(true);
+            new Game_Page(null, null, null, null, null).setVisible(true);
         });
     }
 
@@ -1394,6 +1567,11 @@ public class Game_Page extends javax.swing.JFrame {
     private javax.swing.JButton jButton98;
     private javax.swing.JButton jButton99;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
