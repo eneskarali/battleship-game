@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import javax.swing.JButton;
 
@@ -21,6 +22,10 @@ public class Game_Page extends javax.swing.JFrame {
     /**
      * Creates new form playerScreen
      */
+    public ObjectOutputStream clientOutput;
+    
+    String p1_name, p2_name;
+    
     public int row, col, shipSize, remainingShipSize;
     public int prevCoords[];
     boolean aShipSelected = false;
@@ -47,11 +52,15 @@ public class Game_Page extends javax.swing.JFrame {
         }
     }
 
-    public Game_Page() {
+    public Game_Page(ObjectOutputStream out, String lID, String p1Name, String p2Name) {
         initComponents();
 
         prevCoords = new int[2];
         btn_basla.setEnabled(false);
+        
+        this.clientOutput = out;
+        this.p1_name = p1Name;
+        this.p2_name = p2Name;
 
         int row = 0, col = 0;
         Component c[] = jPanel1.getComponents();
@@ -1173,10 +1182,8 @@ public class Game_Page extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Game_Page().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new Game_Page(null,null,null,null).setVisible(true);
         });
     }
 
