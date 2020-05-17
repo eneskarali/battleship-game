@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import javax.swing.JButton;
 
 /**
@@ -23,6 +24,7 @@ public class Game_Page extends javax.swing.JFrame {
     public int row, col, shipSize, remainingShipSize;
     public int prevCoords[];
     boolean aShipSelected = false;
+    public int shipMatrix[][] = new int[10][10];
     JButton myMatrix[][] = new JButton[10][10];
     JButton enemyMatrix[][] = new JButton[10][10];
 
@@ -85,21 +87,40 @@ public class Game_Page extends javax.swing.JFrame {
     }
 
     public void placeShips(int size) {
+        boolean validPlacement[] = new boolean[4];
+        Arrays.fill(validPlacement, Boolean.TRUE);
         if (!aShipSelected) {
             setAllElementsEnablty(false, myMatrix);
             myMatrix[row][col].setEnabled(true);
             myMatrix[row][col].setBackground(Color.black);
-            if (row < 9) {
+            shipMatrix[row][col] = 1;
+            for (int i = 0; i < 4; i++) {
+                for (int j = 1; j < size; j++) {
+                    if (i==0 && (row + j) <= 9 && shipMatrix[row + j][col] == 1) {
+                        validPlacement[i] = false;
+                    }
+                    if (i==1 && row > j && shipMatrix[row - j][col] == 1) {
+                        validPlacement[i] = false;
+                    }
+                    if (i==2 && (col + j) <= 9 && shipMatrix[row][col + j] == 1) {
+                        validPlacement[i] = false;
+                    }
+                    if (i==3 && col > j && shipMatrix[row][col - j] == 1) {
+                        validPlacement[i] = false;
+                    }
+                }
+            }
+            if (row < 9 && (9-row) >= (size-1) && validPlacement[0]) {
                 myMatrix[row + 1][col].setEnabled(true);
             }
-            if (row > 0) {
+            if (row > 0 && row >= (size-1) && validPlacement[1]) {
                 myMatrix[row - 1][col].setEnabled(true);
             }
 
-            if (col < 9) {
+            if (col < 9 && (9-col) >= (size-1) && validPlacement[2]) {
                 myMatrix[row][col + 1].setEnabled(true);
             }
-            if (col > 0) {
+            if (col > 0 && col >= (size-1) && validPlacement[3]) {
                 myMatrix[row][col - 1].setEnabled(true);
             }
 
@@ -114,6 +135,7 @@ public class Game_Page extends javax.swing.JFrame {
                 int colCoe = prevCoords[1] - col;
                 myMatrix[row][col].setEnabled(true);
                 myMatrix[row][col].setBackground(Color.black);
+                shipMatrix[row][col] = 1;
 
                 if (remainingShipSize > 1 && row - rowCoe < 10 && row - rowCoe >= 0 && col - colCoe < 10 && col - colCoe >= 0) {
                     myMatrix[row - rowCoe][col - colCoe].setEnabled(true);
@@ -126,13 +148,13 @@ public class Game_Page extends javax.swing.JFrame {
                     aShipSelected = false;
                 }
 
-                if (remainingShipSize == size - 1 && prevCoords[0] + rowCoe < 10 && prevCoords[0] + rowCoe >= 0 && prevCoords[1] + colCoe < 10 && prevCoords[1] + colCoe >= 0) {
+                if (remainingShipSize == size - 1 && prevCoords[0] + rowCoe < 10 && prevCoords[0] + rowCoe >= 0 && prevCoords[1] + colCoe < 10 && prevCoords[1] + colCoe >= 0 && shipMatrix[prevCoords[0] + rowCoe][prevCoords[1] + colCoe] == 0) {
                     myMatrix[prevCoords[0] + rowCoe][prevCoords[1] + colCoe].setEnabled(false);
                 }
-                if (prevCoords[0] - colCoe < 10 && prevCoords[0] - colCoe >= 0 && prevCoords[1] - rowCoe < 10 && prevCoords[1] - rowCoe >= 0) {
+                if (prevCoords[0] - colCoe < 10 && prevCoords[0] - colCoe >= 0 && prevCoords[1] - rowCoe < 10 && prevCoords[1] - rowCoe >= 0 && shipMatrix[prevCoords[0] - colCoe][prevCoords[1] - rowCoe] == 0) {
                     myMatrix[prevCoords[0] - colCoe][prevCoords[1] - rowCoe].setEnabled(false);
                 }
-                if (prevCoords[0] + colCoe < 10 && prevCoords[0] + colCoe >= 0 && prevCoords[1] + rowCoe < 10 && prevCoords[1] + rowCoe >= 0) {
+                if (prevCoords[0] + colCoe < 10 && prevCoords[0] + colCoe >= 0 && prevCoords[1] + rowCoe < 10 && prevCoords[1] + rowCoe >= 0 && shipMatrix[prevCoords[0] + colCoe][prevCoords[1] + rowCoe] == 0) {
                     myMatrix[prevCoords[0] + colCoe][prevCoords[1] + rowCoe].setEnabled(false);
                 }
                 prevCoords[0] = row;
@@ -1053,9 +1075,7 @@ public class Game_Page extends javax.swing.JFrame {
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(70, 70, 70)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(127, 127, 127)))
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
                 .addComponent(jLabel1)
                 .addContainerGap())
