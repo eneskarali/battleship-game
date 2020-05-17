@@ -13,8 +13,8 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+import server.model.Game;
 
 /**
  *
@@ -24,9 +24,9 @@ public class Main_Server {
 
     private ServerSocket mainServerSocket;
     private Thread mainServerThread;
-    private final HashSet<ObjectOutputStream> allClients = new HashSet<>();
     private final Map<String, Player> players = new HashMap<>();
     private final Map<String, Lobby> activeLobbys = new HashMap<>();
+    private final Map<String, Game> activeGames = new HashMap<>();
 
     protected void start(int port) throws IOException {
 
@@ -40,7 +40,7 @@ public class Main_Server {
                     new ListenAllClients(clientSocket).start();
 
                 } catch (IOException ex) {
-                    System.out.println("Thread oluşturulamadı : " + ex);
+                    System.out.println("Hata: " + ex);
                     break;
                 }
             }
@@ -96,6 +96,15 @@ public class Main_Server {
         return null;
     }
 
+    protected void startGame(Player player_1, Player player_2, String gameID) {
+        Game g = new Game(player_1, player_2);  // lobby deki oyuncuları oyuna ekle
+        g.setGameId(gameID);  // lobbyID yi gameID olarak ayarla
+        activeGames.put(gameID, g); //oyunu aktif oyunlar listesine ekle
+
+        activeLobbys.remove(gameID);  // gameID geldikleri lobbyID ye eşit, oyun başladığı için lobby silindi
+
+    }
+
     //oyuncuların hazır olma durumlarını düzenler
     protected void setPlayerStatusToReady(String playerId, String lobbyId) throws IOException {
         if (playerId != null && lobbyId != null) {
@@ -103,11 +112,21 @@ public class Main_Server {
             p.isReady = true;
             Lobby l = activeLobbys.get(lobbyId);
             l.checkPlayerReady();
-            System.out.println(p.userName + " : kullanıcı hazır!");
+
+            System.out.println("username: " + p.userName + " -> Hazır!");
+
             l.players[0].clientOutput.writeObject("users_status:" + l.players[0].isReady + "/" + l.players[1].isReady); // send player1 to user satatus
             l.players[1].clientOutput.writeObject("users_status:" + l.players[0].isReady + "/" + l.players[1].isReady); // send player2 to user satatus
+
             if (l.readyToStart) {
-                System.out.println("Tüm Kullanıcılar Hazır!");
+                System.out.println("username: " + l.players[0].userName + " | username: " + l.players[1].userName + " -> Hazır!");
+
+                //player 1 e herkesin hazır olduğu bilgisini ve kullanıcı isimlerini gönderir
+                l.players[0].clientOutput.writeObject("everyone_ready:" + l.lobbyId + "/" + l.players[0].userName + "/" + l.players[1].userName);
+                //player 2 ye herkesin hazır olduğu bilgisini ve kullanıcı isimlerini gönderiri
+                l.players[1].clientOutput.writeObject("everyone_ready:" + l.lobbyId + "/" + l.players[0].userName + "/" + l.players[1].userName);
+
+                startGame(l.players[0], l.players[1], l.lobbyId);  // tüm oyuncular hazır olduğu için oyunu başlat
             }
         } else {
             System.out.println("Hata: hazır konumuna getirilecek kullanıcı veya oda bulunamadı!");
@@ -132,15 +151,14 @@ public class Main_Server {
         @Override
         public void run() {
             System.out.println("Bağlanan client için thread oluşturuldu : " + this.getName());
-
             try {
-                // input  : client'dan gelen mesajları okumak için
-                // output : server'a bağlı olan client'a mesaj göndermek için
+                // client'dan gelen mesajları okumak için
                 clientInput = new ObjectInputStream(clientSocket.getInputStream());
+                // server'a bağlı olan client'a mesaj göndermek için
                 clientOutput = new ObjectOutputStream(clientSocket.getOutputStream());
 
                 Object receivedMessage;
-                Player p = null;
+                Player p = null;   // şuan mesaj gelen kullanıcı
 
                 // client mesaj gönderdiği sürece mesajı al
                 while ((receivedMessage = clientInput.readObject()) != null) {
@@ -154,49 +172,59 @@ public class Main_Server {
                     String content = message[1];
 
                     //eğer save_user komutu gelmişse gelen username ile birlikte kullanıcı oluştur ve kayıt et
-                    if (command.equals("save_user")) {                              // save_user:username şeklinde mesaj gönderilmeli
-                        p = createPlayer(content);
-                        p.clientInput = clientInput;
-                        p.clientOutput = clientOutput;
-                        sendMessageToClient(p, "user_saved:" + p.id + "/" + p.userName);  // kullanıcı kayıt edildi bilgisini client a gönder
-                    } else if (command.equals("create_lobby")) {                    // parametresiz olarak create_lobby: şeklinde gönderilebilir
-                        if (p != null) {
-                            Lobby l;
-                            l = createLobby(p);
-                            sendMessageToClient(p, "lobby_created:" + l.lobbyId + "/" + p.userName + "/" + p.id); // lobby oluşturuldu bilgisi client a gönderilir
-                        } else {
-                            System.out.println("Kullanıcı bulunamadı!");
-                        }
-                    } else if (command.equals("join_lobby")) {                      // join_lobby:lobbyId şeklinde mesaj gönderilmeli
-                        if (p != null) {
-                            Lobby l;
-                            l = joinLobby(p, content);
-                            sendMessageToClient(p, "joined_to_lobby:" + l.lobbyId + "/" + l.players[0].userName + "/" + l.players[1].userName + "/" + p.id); //lobiye katılma bilgisi client a gönderilir
-                            sendMessageToClient(l.players[0], "someone_joined:" + l.players[1].userName);
-                        } else {
-                            System.out.println("Kullanıcı bulunamadı!");
-                        }
-                    } else if (command.equals("im_ready")) {                        // im_ready:userId/lobbyId şeklinde mesaj gönderilmeli
-                        String params[] = content.split("/");
-                        String userId = params[0];                                  // get userId
-                        String lobbyId = params[1];                                 // get lobbyId
-                        setPlayerStatusToReady(userId, lobbyId);
+                    switch (command) {
+                        case "save_user":
+                            // save_user:username şeklinde mesaj gönderilmeli
+                            p = createPlayer(content);
+                            p.clientInput = clientInput;
+                            p.clientOutput = clientOutput;
+                            
+                            // kullanıcı kayıt edildi bilgisini client a gönder
+                            sendMessageToClient(p, "user_saved:" + p.id + "/" + p.userName);  
+                            break;
+                        case "create_lobby":
+                            // parametresiz olarak create_lobby: şeklinde gönderilebilir
+                            if (p != null) {
+                                Lobby l;
+                                l = createLobby(p);
+                                
+                                // lobby oluşturuldu bilgisi client a gönderilir
+                                sendMessageToClient(p, "lobby_created:" + l.lobbyId + "/" + p.userName + "/" + p.id); 
+                            } else {
+                                System.out.println("Kullanıcı bulunamadı!");
+                            }
+                            break;
+                        case "join_lobby":
+                            // join_lobby:lobbyId şeklinde mesaj gönderilmeli
+                            if (p != null) {
+                                Lobby l;
+                                l = joinLobby(p, content);
+                                
+                                //lobiye katılma bilgisi client a gönderilir
+                                sendMessageToClient(p, "joined_to_lobby:" + l.lobbyId + "/" + l.players[0].userName + "/" + l.players[1].userName + "/" + p.id); 
+                                sendMessageToClient(l.players[0], "someone_joined:" + l.players[1].userName);
+                            } else {
+                                System.out.println("Kullanıcı bulunamadı!");
+                            }
+                            break;
+                        case "im_ready":
+                            // im_ready:userId/lobbyId şeklinde mesaj gönderilmeli
+                            String params[] = content.split("/");
+                            String userId = params[0];                             // get userId
+                            String lobbyId = params[1];                            // get lobbyId
+                            setPlayerStatusToReady(userId, lobbyId);               // gelen player ı hazır olarak set et     
+                            break;
+                        default:
+                            //herhangi bir komut ile eşleşme sağlanamazsa
+                            System.out.println("Server a gelen komut anlaşılamadı!: " + command);
+                            break;
                     }
                 }
 
             } catch (IOException | ClassNotFoundException ex) {
-                System.out.println("Hata - ListenThread : " + ex);
+                System.out.println("Hata:: " + ex);
             } finally {
                 try {
-                    // client'ların tutulduğu listeden çıkart
-                    allClients.remove(clientOutput);
-
-                    // bütün client'lara ayrılma mesajı gönder
-                    for (ObjectOutputStream out : allClients) {
-                        out.writeObject(this.getName() + " server'dan ayrıldı.");
-                    }
-
-                    // bütün streamleri ve soketleri kapat
                     if (clientInput != null) {
                         clientInput.close();
                     }
@@ -206,9 +234,9 @@ public class Main_Server {
                     if (clientSocket != null) {
                         clientSocket.close();
                     }
-                    System.out.println("Soket kapatıldı : " + clientSocket);
+                    System.out.println("Kapatıldı: " + clientSocket);
                 } catch (IOException ex) {
-                    System.out.println("Hata - Soket kapatılamadı : " + ex);
+                    System.out.println("Hata: " + ex);
                 }
             }
         }
